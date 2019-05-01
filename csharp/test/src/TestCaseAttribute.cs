@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PhysFS_CS_Test {
+namespace PhysFS.Test {
     public class TestCaseAttribute : Attribute {
         public TestCaseAttribute(string title) {
             Title = title;

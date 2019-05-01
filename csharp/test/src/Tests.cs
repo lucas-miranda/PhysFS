@@ -3,7 +3,9 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace PhysFS_CS_Test {
+using PhysFS.Stream;
+
+namespace PhysFS.Test {
     public static class Tests {
         #region Public Members
 
@@ -17,7 +19,7 @@ namespace PhysFS_CS_Test {
 
         [TestCase("PHYSFS_getLinkedVersion")]
         public static bool Test_GetLinkedVersion() {
-            PhysFS.PHYSFS_Version version = PhysFS.PhysFS.LinkedVersion;
+            PHYSFS_Version version = PhysFS.LinkedVersion;
 
 #if PRINT_INFO
             Debug.WriteLine($"  Linked PhysFS version: {version.major}.{version.minor}.{version.patch}");
@@ -64,10 +66,10 @@ namespace PhysFS_CS_Test {
         public static bool Test_SupportedArchiveTypes() {
             //Begin();
 
-            PhysFS.PHYSFS_ArchiveInfo[] supportedArchiveTypes = PhysFS.PhysFS.Instance.SupportedArchiveTypes;
+            PHYSFS_ArchiveInfo[] supportedArchiveTypes = PhysFS.Instance.SupportedArchiveTypes;
 
             #if PRINT_INFO
-            foreach (PhysFS.PHYSFS_ArchiveInfo archiveInfo in supportedArchiveTypes) {
+            foreach (PHYSFS_ArchiveInfo archiveInfo in supportedArchiveTypes) {
                 Debug.WriteLine($"  ext: {archiveInfo.extension} |  desc: {archiveInfo.description} |  author: {archiveInfo.author} |  url: {archiveInfo.url} |  sym links: {archiveInfo.supportsSymlinks == 1}");
             }
 #endif
@@ -115,19 +117,19 @@ namespace PhysFS_CS_Test {
         public static bool Test_GetDirs() {
             //Begin();
 
-            string[] cdromDirs = PhysFS.PhysFS.Instance.CdRomDirectories;
+            string[] cdromDirs = PhysFS.Instance.CdRomDirectories;
 
 #if PRINT_INFO
             Debug.WriteLine($"  CdRom available dirs: {string.Join(", ", cdromDirs)}");
 #endif
 
-            string baseDir = PhysFS.PhysFS.Instance.BaseDirectory;
+            string baseDir = PhysFS.Instance.BaseDirectory;
 
 #if PRINT_INFO
             Debug.WriteLine($"  Base Dir: {baseDir}");
 #endif
 
-            string userDir = PhysFS.PhysFS.Instance.UserDirectory;
+            string userDir = PhysFS.Instance.UserDirectory;
 
 #if PRINT_INFO
             Debug.WriteLine($"  User Dir: {userDir}");
@@ -162,11 +164,11 @@ namespace PhysFS_CS_Test {
 
         [TestCase("Stream.PhysFSFileWrite")]
         public static bool Test_PhysFSFileWriter() {
-            PhysFS.PhysFS.Instance.WriteDirectory = "folder.zip";
+            PhysFS.Instance.WriteDirectory = "folder.zip";
 
-            Debug.WriteLine($"  Write Dir: {PhysFS.PhysFS.Instance.WriteDirectory}");
+            Debug.WriteLine($"  Write Dir: {PhysFS.Instance.WriteDirectory}");
 
-            using (PhysFS.Stream.PhysFSFileWriter stream = new PhysFS.Stream.PhysFSFileWriter("test-write-stream.txt")) {
+            using (PhysFSFileWriter stream = new PhysFSFileWriter("test-write-stream.txt")) {
                 string message = "Just a PhysFSFileWrite test...";
                 byte[] messageBytes = Encoding.UTF8.GetBytes(message);
 

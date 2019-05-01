@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Diagnostics;
 
-namespace PhysFS_CS_Test {
+namespace PhysFS.Test {
     public delegate bool TestFunction();
 
     class Program {
@@ -12,7 +12,7 @@ namespace PhysFS_CS_Test {
 
             Debug.WriteLine("Begin tests\n");
 
-            PhysFS.PhysFS.Initialize();
+            PhysFS.Initialize();
 
             Type testsType = typeof(Tests);
             MethodInfo[] methods = testsType.GetMethods(BindingFlags.Public | BindingFlags.Static);
@@ -32,7 +32,7 @@ namespace PhysFS_CS_Test {
                 }
             }
 
-            PhysFS.PhysFS.Deinitialize();
+            PhysFS.Deinitialize();
 
             Debug.WriteLine($"\nEnd of tests");
 
@@ -51,7 +51,7 @@ namespace PhysFS_CS_Test {
             try {
                 ret = function();
                 Debug.WriteLine("  Passed!");
-            } catch (PhysFS.PhysFSException e) {
+            } catch (PhysFSException e) {
                 Debug.WriteLine($"  Failed\n  Error: [{e.ErrorCode}] {e.Message}");
             }
 
