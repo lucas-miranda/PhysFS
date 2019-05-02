@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace PhysFS {
     public class PhysFSException : Exception {
-        public PhysFSException(PHYSFS_ErrorCode errorCode) : base(Marshal.PtrToStringAnsi(Interop.PHYSFS_getErrorByCode(errorCode))) {
+        public PhysFSException(PHYSFS_ErrorCode errorCode) : base($"[{errorCode}] {Marshal.PtrToStringAnsi(Interop.PHYSFS_getErrorByCode(errorCode))}") {
             ErrorCode = errorCode;
         }
 
