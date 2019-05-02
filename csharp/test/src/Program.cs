@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define JUST_PRINT_ERROR
+
+using System;
 using System.Reflection;
 using System.Diagnostics;
 
@@ -48,12 +50,21 @@ namespace PhysFS.Test {
 
             bool ret = false;
 
+#if JUST_PRINT_ERROR
             try {
                 ret = function();
                 Debug.WriteLine("  Passed!");
             } catch (PhysFSException e) {
                 Debug.WriteLine($"  Failed\n  Error: [{e.ErrorCode}] {e.Message}");
             }
+#else
+            ret = function();
+            if (ret) {
+                Debug.WriteLine("  Passed!");
+            } else {
+                Debug.WriteLine($"  Failed");
+            }
+#endif
 
             return ret;
         }
