@@ -64,7 +64,7 @@ namespace PhysFS.Test {
 
         [TestCase("PHYSFS_supportedArchiveTypes")]
         public static bool Test_SupportedArchiveTypes() {
-            //Begin();
+            PhysFS.Initialize();
 
             PHYSFS_ArchiveInfo[] supportedArchiveTypes = PhysFS.Instance.SupportedArchiveTypes;
 
@@ -74,7 +74,7 @@ namespace PhysFS.Test {
             }
 #endif
 
-            //End();
+            PhysFS.Deinitialize();
 
             return true;
         }
@@ -115,7 +115,7 @@ namespace PhysFS.Test {
 
         [TestCase("PHYSFS_getRomsDirs, PHYSFS_getBaseDir, PHYSFS_getUserDir")]
         public static bool Test_GetDirs() {
-            //Begin();
+            PhysFS.Initialize();
 
             string[] cdromDirs = PhysFS.Instance.CdRomDirectories;
 
@@ -135,7 +135,7 @@ namespace PhysFS.Test {
             Debug.WriteLine($"  User Dir: {userDir}");
 #endif
 
-            //End();
+            PhysFS.Deinitialize();
 
             return true;
         }
@@ -164,21 +164,24 @@ namespace PhysFS.Test {
 
         [TestCase("Stream.PhysFSFileWrite")]
         public static bool Test_PhysFSFileWriter() {
-            PhysFS.Instance.WriteDirectory = "folder.zip";
+            PhysFS.Initialize();
 
+            PhysFS.Instance.WriteDirectory = "folder2";
             Debug.WriteLine($"  Write Dir: {PhysFS.Instance.WriteDirectory}");
 
-            using (PhysFSFileWriter stream = new PhysFSFileWriter("test-write-stream.txt")) {
-                string message = "Just a PhysFSFileWrite test...";
-                byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+            using (PhysFSFileWriter stream = new PhysFSFileWriter("test-write-stream.txt", append: false)) {
+                string text = "Just a PhysFSFileWrite test...";
+                byte[] textBytes = Encoding.UTF8.GetBytes(text);
 
-                Debug.WriteLine($"  File length: {stream.Length}");
+                Debug.WriteLine($"  Before writing, file length: {stream.Length}");
 
                 Debug.WriteLine("  Writing to file");
-                stream.Write(messageBytes, 0, messageBytes.Length);
+                stream.Write(textBytes, 0, textBytes.Length);
 
-                Debug.WriteLine($"  File length: {stream.Length}");
+                Debug.WriteLine($"  After writing, file length: {stream.Length}");
             }
+
+            PhysFS.Deinitialize();
 
             return true;
         }
@@ -186,33 +189,5 @@ namespace PhysFS.Test {
         #endregion PHYSFSFileWrite Tests
 
         #endregion Public Methods
-
-        #region Private Methods
-
-        /*
-        private static void Begin() {
-            PhysFS.PhysFS.PHYSFS_init(null);
-
-            if (PhysFS.PhysFS.PHYSFS_isInit() == 0) {
-                throw new PHYSFSErrorException(PhysFS.PhysFS.PHYSFS_getLastErrorCode());
-            }
-        }
-
-        private static void BeginWithMount(string dir = TestArchiveFilePath, string mountPoint = "", int appendToPath = 1) {
-            Begin();
-
-            if (PhysFS.PhysFS.PHYSFS_mount(dir, mountPoint, appendToPath) == 0) {
-                throw new PHYSFSErrorException(PhysFS.PhysFS.PHYSFS_getLastErrorCode());
-            }
-        }
-
-        private static void End() {
-            if (PhysFS.PhysFS.PHYSFS_deinit() == 0) {
-                throw new PHYSFSErrorException(PhysFS.PhysFS.PHYSFS_getLastErrorCode());
-            }
-        }
-        */
-
-        #endregion Private Methods
     }
 }

@@ -14,8 +14,6 @@ namespace PhysFS.Test {
 
             Debug.WriteLine("Begin tests\n");
 
-            PhysFS.Initialize();
-
             Type testsType = typeof(Tests);
             MethodInfo[] methods = testsType.GetMethods(BindingFlags.Public | BindingFlags.Static);
 
@@ -33,8 +31,6 @@ namespace PhysFS.Test {
                     failedCount++;
                 }
             }
-
-            PhysFS.Deinitialize();
 
             Debug.WriteLine($"\nEnd of tests");
 
