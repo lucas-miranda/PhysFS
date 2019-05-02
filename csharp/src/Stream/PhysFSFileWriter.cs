@@ -6,9 +6,14 @@ namespace PhysFS.Stream {
     public class PhysFSFileWriter : System.IO.Stream {
         #region Constructors
 
-        public PhysFSFileWriter(string filename) {
+        public PhysFSFileWriter(string filename, bool append = false) {
             IntPtr filenamePtr = Marshal.StringToHGlobalAnsi(filename);
-            Handle = Interop.PHYSFS_openWrite(filenamePtr);
+
+            if (append) {
+                Handle = Interop.PHYSFS_openAppend(filenamePtr);
+            } else {
+                Handle = Interop.PHYSFS_openWrite(filenamePtr);
+            }
 
             if (Handle == IntPtr.Zero) {
                 throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
@@ -46,16 +51,6 @@ namespace PhysFS.Stream {
         #endregion Public Properties
 
         #region Public Methods
-
-        public override void Close() {
-            base.Close();
-
-            int ret = Interop.PHYSFS_close(Handle);
-
-            if (ret == 0) {
-                throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
-            }
-        }
 
         public override void Flush() {
             int ret = Interop.PHYSFS_flush(Handle);

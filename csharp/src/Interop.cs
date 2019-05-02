@@ -296,7 +296,7 @@ namespace PhysFS {
         public static extern IntPtr PHYSFS_openWrite(IntPtr filename); // IntPtr (ret) => PHYSFS_File* | IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_openAppend(string filename);
+        public static extern IntPtr PHYSFS_openAppend(IntPtr filename); // IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_openRead(string filename);
