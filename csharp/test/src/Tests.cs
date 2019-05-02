@@ -10,7 +10,7 @@ namespace PhysFS.Test {
         #region Public Members
 
         public const string TestArchiveFilePath = "folder.zip",
-                            TestFilepath = "folder/test.txt",
+                            TestFilepath = "test.txt",
                             TestWriteDir = "folder2";
 
         #endregion Public Members
@@ -28,39 +28,28 @@ namespace PhysFS.Test {
             return true;
         }
 
-        /*
         [TestCase("PHYSFS_mount")]
         public static bool Test_Mount() {
-            //Begin();
+            PhysFS.Initialize();
 
-            bool ret = PhysFS.PhysFS.PHYSFS_mount(TestArchiveFilePath, "", 1) != 0;
+            bool ret = PhysFS.Instance.Mount(TestArchiveFilePath, mountPoint: "", appendToPath: true);
 
-            if (!ret) {
-                throw new PHYSFSErrorException(PhysFS.PhysFS.PHYSFS_getLastErrorCode());
-            }
-
-            //End();
+            PhysFS.Deinitialize();
 
             return ret;
         }
-        */
 
-        /*
         [TestCase("PHYSFS_exists")]
         public static bool Test_Exists() {
-            BeginWithMount();
+            PhysFS.Initialize();
+            PhysFS.Instance.Mount(TestArchiveFilePath, mountPoint: "", appendToPath: true);
 
-            bool ret = PhysFS.PhysFS.PHYSFS_exists(TestFilepath) != 0;
+            bool ret = PhysFS.Instance.Exists(TestFilepath);
 
-            if (!ret) {
-                throw new PHYSFSErrorException(PhysFS.PhysFS.PHYSFS_getLastErrorCode());
-            }
-
-            End();
+            PhysFS.Deinitialize();
 
             return ret;
         }
-        */
 
         [TestCase("PHYSFS_supportedArchiveTypes")]
         public static bool Test_SupportedArchiveTypes() {
@@ -78,27 +67,6 @@ namespace PhysFS.Test {
 
             return true;
         }
-
-        /*
-        [TestCase("PHYSFS_getLastError")]
-        public static bool Test_GetLastError() {
-            //Begin();
-
-            PhysFS.PhysFS.PHYSFS_mount("inexistent folder", "", 1);
-
-            string str = PhysFS.PhysFS.PHYSFS_getLastError();
-
-            bool ret = str.Length > 0;
-
-#if PRINT_INFO
-            Debug.WriteLine($"  Testing error with inexistent folder, Last Error Message: {str}");
-#endif
-
-            //End();
-
-            return ret;
-        }
-        */
 
         /*
         [TestCase("PHYSFS_getDirSeparator")]
@@ -140,25 +108,20 @@ namespace PhysFS.Test {
             return true;
         }
 
-        /*
         [TestCase("PHYSFS_setWriteDir, PHYSFS_getWriteDir")]
         public static bool Test_WriteDir() {
-            Begin();
+            PhysFS.Initialize();
+
             Debug.WriteLine($"  Setting Write Dir to '{TestWriteDir}'");
-            int writeRet = PhysFS.LowLevel.PhysFS.PHYSFS_setWriteDir(TestWriteDir);
+            PhysFS.Instance.WriteDirectory = TestWriteDir;
 
-            if (writeRet == 0) {
-                throw new PHYSFSErrorException(PhysFS.PhysFS.PHYSFS_getLastErrorCode());
-            }
-
-            string writeDir = PhysFS.PhysFS.PHYSFS_getWriteDir();
+            string writeDir = PhysFS.Instance.WriteDirectory;
             Debug.WriteLine($"  Getting Write Dir: {writeDir}");
 
-            End();
+            PhysFS.Deinitialize();
 
             return writeDir == TestWriteDir;
         }
-        */
 
         #region PHYSFSFileWrite Tests
 
@@ -166,7 +129,7 @@ namespace PhysFS.Test {
         public static bool Test_PhysFSFileWriter() {
             PhysFS.Initialize();
 
-            PhysFS.Instance.WriteDirectory = "folder2";
+            PhysFS.Instance.WriteDirectory = TestWriteDir;
             Debug.WriteLine($"  Write Dir: {PhysFS.Instance.WriteDirectory}");
 
             using (PhysFSFileWriter stream = new PhysFSFileWriter("test-write-stream.txt", append: false)) {
