@@ -107,61 +107,61 @@ namespace PhysFS {
 
     [StructLayout(LayoutKind.Sequential)]
     public struct PHYSFS_ArchiveInfo {
-        public string extension;
-        public string description;
-        public string author;
-        public string url;
-        public int supportsSymlinks;
+        public string Extension;
+        public string Description;
+        public string Author;
+        public string Url;
+        public int SupportsSymlinks;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct PHYSFS_Archiver {
-        public uint version;
-        public PHYSFS_ArchiveInfo info;
-        public PHYSFS_FP_openArchive openArchive;       // void* (*openArchive) (PHYSFS_Io *io, const char *name, int forWrite, int *claimed)
-        public PHYSFS_FP_enumerate enumerate;           // PHYSFS_EnumerateCallbackResult (*enumerate) (void *opaque, const char *dirname, PHYSFS_EnumerateCallback cb, const char *origdir, void *callbackdata)
-        public PHYSFS_FP_openRead openRead;             // PHYSFS_Io* (*openRead) (void *opaque, const char *fnm)
-        public PHYSFS_FP_openAppend openAppend;         // PHYSFS_Io* (*openAppend) (void *opaque, const char *fnm)
-        public PHYSFS_FP_remove remove;                 // int (*remove) (void *opaque, const char *filename)
-        public PHYSFS_FP_mkdir mkdir;                   // int (*mkdir) (void *opaque, const char *filename)
-        public PHYSFS_FP_stat stat;                     // int (*stat) (void *opaque, const char *fn, PHYSFS_Stat *stat)
-        public PHYSFS_FP_closeArchive closeArchive;     // void (*closeArchive) (void *opaque)
+        public uint Version;
+        public PHYSFS_ArchiveInfo Info;
+        public PHYSFS_FP_openArchive OpenArchive;       // void* (*openArchive) (PHYSFS_Io *io, const char *name, int forWrite, int *claimed)
+        public PHYSFS_FP_enumerate Enumerate;           // PHYSFS_EnumerateCallbackResult (*enumerate) (void *opaque, const char *dirname, PHYSFS_EnumerateCallback cb, const char *origdir, void *callbackdata)
+        public PHYSFS_FP_openRead OpenRead;             // PHYSFS_Io* (*openRead) (void *opaque, const char *fnm)
+        public PHYSFS_FP_openAppend OpenAppend;         // PHYSFS_Io* (*openAppend) (void *opaque, const char *fnm)
+        public PHYSFS_FP_remove Remove;                 // int (*remove) (void *opaque, const char *filename)
+        public PHYSFS_FP_mkdir Mkdir;                   // int (*mkdir) (void *opaque, const char *filename)
+        public PHYSFS_FP_stat Stat;                     // int (*stat) (void *opaque, const char *fn, PHYSFS_Stat *stat)
+        public PHYSFS_FP_closeArchive CloseArchive;     // void (*closeArchive) (void *opaque)
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct PHYSFS_File {
-        public IntPtr opaque; // void*
+        public IntPtr Opaque; // void*
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct PHYSFS_Io {
-        public uint version;
-        public IntPtr opaque;                   // void*
-        public PHYSFS_FP_read read;             // PHYSFS_sint64 (*read) (struct PHYSFS_Io *io, void *buf, PHYSFS_uin64 len)
-        public PHYSFS_FP_write write;           // PHYSFS_sint64 (*write) (struct PHYSFS_Io *io, const void *buf, PHYSFS_uin64 len)
-        public PHYSFS_FP_seek seek;             // int (*seek) (struct PHYSFS_Io *io, PHYSFS_uint64 offset)
-        public PHYSFS_FP_tell tell;             // PHYSFS_sint64 (*tell) (struct PHYSFS_Io *io)
-        public PHYSFS_FP_length length;         // PHYSFS_sint64 (*length) (struct PHYSFS_Io *io)
-        public PHYSFS_FP_duplicate duplicate;   // struct PHYSFS_Io* (*duplicate) (struct PHYSFS_Io *io)
-        public PHYSFS_FP_flush flush;           // int (*flush) (struct PHYSFS_Io *io)
-        public PHYSFS_FP_destroy destroy;       // void (*destroy) (struct PHYSFS_Io *io)
+        public uint Version;
+        public IntPtr Opaque;                   // void*
+        public PHYSFS_FP_read Read;             // PHYSFS_sint64 (*read) (struct PHYSFS_Io *io, void *buf, PHYSFS_uin64 len)
+        public PHYSFS_FP_write Write;           // PHYSFS_sint64 (*write) (struct PHYSFS_Io *io, const void *buf, PHYSFS_uin64 len)
+        public PHYSFS_FP_seek Seek;             // int (*seek) (struct PHYSFS_Io *io, PHYSFS_uint64 offset)
+        public PHYSFS_FP_tell Tell;             // PHYSFS_sint64 (*tell) (struct PHYSFS_Io *io)
+        public PHYSFS_FP_length Length;         // PHYSFS_sint64 (*length) (struct PHYSFS_Io *io)
+        public PHYSFS_FP_duplicate Duplicate;   // struct PHYSFS_Io* (*duplicate) (struct PHYSFS_Io *io)
+        public PHYSFS_FP_flush Flush;           // int (*flush) (struct PHYSFS_Io *io)
+        public PHYSFS_FP_destroy Destroy;       // void (*destroy) (struct PHYSFS_Io *io)
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct PHYSFS_Stat {
-        public long filesize;
-        public long modtime;
-        public long createtime;
-        public long accesstime;
-        public PHYSFS_FileType filetype;
-        public int isreadonly;
+        public long FileSize;
+        public long ModTime;
+        public long CreateTime;
+        public long AccessTime;
+        public PHYSFS_FileType FileType;
+        public int IsReadonly;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct PHYSFS_Version {
-        public byte major;
-        public byte minor;
-        public byte patch;
+        public byte Major;
+        public byte Minor;
+        public byte Patch;
     }
 
     #endregion Data Structures
@@ -184,7 +184,7 @@ namespace PhysFS {
         /// <param name="argv0">The argv[0] string passed to your program's mainline. This may be NULL on most platforms (such as ones without a standard main() function), but you should always try to pass something in here. Unix-like systems such as Linux need to pass argv[0] from main() in here.</param>
         /// <returns>Nonzero on success, zero on error. Specifics of the error can be gleaned from PHYSFS_getLastError().</returns>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_init(string argv0);
+        public static extern int PHYSFS_init(string argv0); //
 
         /// <summary>
         /// Deinitialize the PhysicsFS library.
@@ -200,13 +200,13 @@ namespace PhysFS {
         /// <seealso cref="PHYSFS_init"/>
         /// <seealso cref="PHYSFS_isInit"/>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_deinit();
+        public static extern int PHYSFS_deinit(); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_supportedArchiveTypes(); // IntPtr => const PHYSFS_ArchiveInfo**
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_freeList(IntPtr listVar);
+        public static extern void PHYSFS_freeList(IntPtr listVar); // IntPtr => void*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getLastError(); // IntPtr => const char*
@@ -290,19 +290,19 @@ namespace PhysFS {
 
         [Obsolete("As of PhysicsFS 2.1, use PHYSFS_stat() instead. This function just wraps it anyhow.", error: false)]
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern long PHYSFS_getLastModTime(string filename);
+        public static extern long PHYSFS_getLastModTime(IntPtr filename);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_openWrite(IntPtr filename); // IntPtr (ret) => PHYSFS_File* | IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_openAppend(IntPtr filename); // IntPtr => const char*
+        public static extern IntPtr PHYSFS_openAppend(IntPtr filename); // IntPtr (ret) => PHYSFS_File* | IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_openRead(string filename);
+        public static extern IntPtr PHYSFS_openRead(IntPtr filename); // IntPtr (ret) => PHYSFS_File* | IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_close(IntPtr handle);
+        public static extern int PHYSFS_close(IntPtr handle); // IntPtr => PHYSFS_File*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern long PHYSFS_read(IntPtr handle, IntPtr buffer, uint objSize, uint objCount);
@@ -311,22 +311,22 @@ namespace PhysFS {
         public static extern long PHYSFS_write(IntPtr handle, IntPtr buffer, uint objSize, uint objCount);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_eof(IntPtr handle);
+        public static extern int PHYSFS_eof(IntPtr handle); // IntPtr => PHYSFS_File*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern long PHYSFS_tell(IntPtr handle);
+        public static extern long PHYSFS_tell(IntPtr handle); // IntPtr => PHYSFS_File*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_seek(IntPtr handle, ulong pos);
+        public static extern int PHYSFS_seek(IntPtr handle, ulong pos); // IntPtr => PHYSFS_File*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern long PHYSFS_fileLength(IntPtr handle);
+        public static extern long PHYSFS_fileLength(IntPtr handle); // IntPtr => PHYSFS_File*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_setBuffer(IntPtr handle, ulong bufsize);
+        public static extern int PHYSFS_setBuffer(IntPtr handle, ulong bufsize); // IntPtr => PHYSFS_File*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_flush(IntPtr handle);
+        public static extern int PHYSFS_flush(IntPtr handle); // IntPtr => PHYSFS_File*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern short PHYSFS_swapSLE16(short val);
@@ -437,7 +437,7 @@ namespace PhysFS {
         public static extern int PHYSFS_writeUBE64(IntPtr handle, ulong val);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_isInit();
+        public static extern int PHYSFS_isInit(); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_symbolicLinksPermitted();
@@ -513,7 +513,7 @@ namespace PhysFS {
         public static extern IntPtr PHYSFS_getAllocator();
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_stat(string fname, IntPtr stat);
+        public static extern int PHYSFS_stat(IntPtr fname, IntPtr stat); // IntPtr => const char*; IntPtr => PHYSFS_Stat*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_utf8FromUtf16(UIntPtr src, string dst, ulong len);
@@ -522,10 +522,10 @@ namespace PhysFS {
         public static extern void PHYSFS_utf8ToUtf16(string src, UIntPtr dst, ulong len);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern long PHYSFS_readBytes(IntPtr handle, IntPtr buffer, ulong len);
+        public static extern long PHYSFS_readBytes(IntPtr handle, IntPtr buffer, ulong len); // IntPtr => PHYSFS_File*; IntPtr => void*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern long PHYSFS_writeBytes(IntPtr handle, IntPtr buffer, ulong len);
+        public static extern long PHYSFS_writeBytes(IntPtr handle, IntPtr buffer, ulong len); // IntPtr => PHYSFS_File*; IntPtr => void*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_mountIo(IntPtr io, string newDir, string mountPoint, int appendToPath);
@@ -537,10 +537,10 @@ namespace PhysFS {
         public static extern int PHYSFS_mountHandle(IntPtr file, string newDir, string mountPoint, int appendToPath);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern PHYSFS_ErrorCode PHYSFS_getLastErrorCode();
+        public static extern PHYSFS_ErrorCode PHYSFS_getLastErrorCode(); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_getErrorByCode(PHYSFS_ErrorCode code);
+        public static extern IntPtr PHYSFS_getErrorByCode(PHYSFS_ErrorCode code); // IntPtr (ret) => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_setErrorCode(PHYSFS_ErrorCode code);

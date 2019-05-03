@@ -139,11 +139,25 @@ namespace PhysFS {
 
             int ret = Interop.PHYSFS_deinit();
 
+            CheckReturnValue(ret);
+            return true;
+        }
+
+        public static PHYSFS_Stat Stat(string filename) {
+            IntPtr filenamePtr = Marshal.StringToHGlobalAnsi(filename),
+                   statPtr = Marshal.AllocHGlobal(Marshal.SizeOf<PHYSFS_Stat>());
+
+            int ret = Interop.PHYSFS_stat(filenamePtr, statPtr);
+
             if (ret == 0) {
+                Marshal.FreeHGlobal(statPtr);
                 throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
             }
 
-            return true;
+            PHYSFS_Stat stat = Marshal.PtrToStructure<PHYSFS_Stat>(statPtr);
+            Marshal.FreeHGlobal(statPtr);
+
+            return stat;
         }
 
         public bool SetSaneConfig(string organization, string appName, string archiveExt, bool includeCdRoms, bool archivesFirst) {
@@ -245,14 +259,14 @@ namespace PhysFS {
 
         #region Private Methdods
 
-        private void ParseReturnCodeValue(int ret) {
+        private static void ParseReturnCodeValue(int ret) {
             PHYSFS_ErrorCode errorCode = (PHYSFS_ErrorCode) ret;
             if (errorCode != PHYSFS_ErrorCode.PHYSFS_ERR_OK) {
                 throw new PhysFSException(errorCode);
             }
         }
 
-        private void CheckReturnValue(int ret) {
+        private static void CheckReturnValue(int ret) {
             if (ret != 0) {
                 return;
             }

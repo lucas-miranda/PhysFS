@@ -22,7 +22,7 @@ namespace PhysFS.Test {
             PHYSFS_Version version = PhysFS.LinkedVersion;
 
 #if PRINT_INFO
-            Debug.WriteLine($"  Linked PhysFS version: {version.major}.{version.minor}.{version.patch}");
+            Debug.WriteLine($"  Linked PhysFS version: {version.Major}.{version.Minor}.{version.Patch}");
 #endif
 
             return true;
@@ -59,7 +59,7 @@ namespace PhysFS.Test {
 
             #if PRINT_INFO
             foreach (PHYSFS_ArchiveInfo archiveInfo in supportedArchiveTypes) {
-                Debug.WriteLine($"  ext: {archiveInfo.extension} |  desc: {archiveInfo.description} |  author: {archiveInfo.author} |  url: {archiveInfo.url} |  sym links: {archiveInfo.supportsSymlinks == 1}");
+                Debug.WriteLine($"  ext: {archiveInfo.Extension} |  desc: {archiveInfo.Description} |  author: {archiveInfo.Author} |  url: {archiveInfo.Url} |  sym links: {archiveInfo.SupportsSymlinks == 1}");
             }
 #endif
 
@@ -125,7 +125,7 @@ namespace PhysFS.Test {
 
         #region PHYSFSFileWrite Tests
 
-        [TestCase("Stream.PhysFSFileWrite")]
+        [TestCase("Stream.PhysFSFileWriter")]
         public static bool Test_PhysFSFileWriter() {
             PhysFS.Initialize();
 
@@ -146,6 +146,44 @@ namespace PhysFS.Test {
 
             PhysFS.Deinitialize();
 
+            return true;
+        }
+
+        [TestCase("Stream.PhysFSFIleReader")]
+        public static bool Test_PhysFSFileReader() {
+            PhysFS.Initialize();
+            PhysFS.Instance.Mount("folder2", mountPoint: "", appendToPath: true);
+
+            Debug.WriteLine($"  Reading 'just a text.txt' file");
+
+            using (PhysFSFileReader stream = new PhysFSFileReader("just a text.txt")) {
+                byte[] buffer = new byte[stream.Length];
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                string text = Encoding.UTF8.GetString(buffer);
+
+                //Debug.WriteLine($"  File contents:\n{text}");
+                Debug.WriteLine($"  Bytes Read: {bytesRead}");
+            }
+
+            PhysFS.Deinitialize();
+
+            return true;
+        }
+        
+        [TestCase("PHYSFS_stat")]
+        public static bool Test_Stat() {
+            PhysFS.Initialize();
+            PhysFS.Instance.Mount("folder2", mountPoint: "", appendToPath: true);
+            PHYSFS_Stat stat = PhysFS.Stat("just a text.txt");
+
+            System.DateTimeOffset createTime = System.DateTimeOffset.FromUnixTimeSeconds(stat.CreateTime),
+                                  modTime = System.DateTimeOffset.FromUnixTimeSeconds(stat.ModTime),
+                                  accessTime = System.DateTimeOffset.FromUnixTimeSeconds(stat.AccessTime);
+
+            Debug.WriteLine($"  File Size: {stat.FileSize} bytes, ModTime: {modTime}, Create Time: {createTime}, Access Time: {accessTime}, File Type: {stat.FileType}, Is Readonly: {System.Convert.ToBoolean(stat.IsReadonly)}");
+
+            PhysFS.Deinitialize();
             return true;
         }
 
