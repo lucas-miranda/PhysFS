@@ -171,6 +171,15 @@ namespace PhysFS {
 
         #region Public Methods
 
+        /// <summary>
+        /// Get the version of PhysicsFS that is linked against your program.
+        /// </summary>
+        /// <remarks>
+        /// If you are using a shared library (DLL) version of PhysFS, then it is possible that it will be different than the version you compiled against.
+        /// This is a real function; the macro PHYSFS_VERSION tells you what version of PhysFS you compiled against
+        /// This function may be called safely at any time, even before PHYSFS_init().
+        /// </remarks>
+        /// <param name="ver">A PHYSFS_Version to output version info.</param>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_getLinkedVersion(IntPtr ver); // IntPtr => PHYSFS_Version*
 
@@ -202,30 +211,103 @@ namespace PhysFS {
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_deinit(); //
 
+        /// <summary>
+        /// Get a list of supported archive types.
+        /// Get a list of archive types supported by this implementation of PhysicFS. These are the file formats usable for search path entries. This is for informational purposes only. Note that the extension listed is merely convention: if we list "ZIP", you can open a PkZip-compatible archive with an extension of "XYZ", if you like.
+        /// </summary>
+        /// <remarks>
+        /// The returned value is an array of pointers to PHYSFS_ArchiveInfo structures, with a NULL entry to signify the end of the list.
+        /// The return values are pointers to internal memory, and should be considered READ ONLY, and never freed. The returned values are valid until the next call to PHYSFS_deinit(), PHYSFS_registerArchiver(), or PHYSFS_deregisterArchiver().
+        /// </remarks>
+        /// <returns>READ ONLY Null-terminated array of READ ONLY structures.</returns>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_supportedArchiveTypes(); // IntPtr => const PHYSFS_ArchiveInfo**
 
+        /// <summary>
+        /// Deallocate resources of lists returned by PhysicsFS.
+        /// Certain PhysicsFS functions return lists of information that are dynamically allocated. Use this function to free those resources.
+        /// It is safe to pass a NULL here, but doing so will cause a crash in versions before PhysicsFS 2.1.0.
+        /// </summary>
+        /// <param name="listVar">List of information specified as freeable by this function. Passing NULL is safe; it is a valid no-op.</param>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_freeList(IntPtr listVar); // IntPtr => void*
 
+        /// <summary>
+        /// Get human-readable error information.
+        /// </summary>
+        /// <remarks>
+        /// Get the last PhysicsFS error message as a human-readable, null-terminated string. This will return NULL if there's been no error since the last call to this function. The pointer returned by this call points to an internal buffer. Each thread has a unique error state associated with it, but each time a new error message is set, it will overwrite the previous one associated with that thread. It is safe to call this function at anytime, even before PHYSFS_init().
+        /// PHYSFS_getLastError() and PHYSFS_getLastErrorCode() both reset the same thread-specific error state. Calling one will wipe out the other's data. If you need both, call PHYSFS_getLastErrorCode(), then pass that value to PHYSFS_getErrorByCode().
+        /// As of PhysicsFS 2.1, this function only presents text in the English language, but the strings are static, so you can use them as keys into your own localization dictionary. These strings are meant to be passed on directly to the user.
+        /// Generally, applications should only concern themselves with whether a given function failed; however, if your code require more specifics, you should use PHYSFS_getLastErrorCode() instead of this function.
+        /// </remarks>
+        /// <returns>READ ONLY string of last error message.</returns>
+        [Obsolete("Use PHYSFS_getLastErrorCode() and PHYSFS_getErrorByCode() instead.", error: false)]
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getLastError(); // IntPtr => const char*
 
+        /// <summary>
+        /// Get platform-dependent dir separator string.
+        /// </summary>
+        /// <remarks>
+        /// This returns "\\" on win32, "/" on Unix, and ":" on MacOS. It may be more than one character, depending on the platform, and your code should take that into account. Note that this is only useful for setting up the search/write paths, since access into those dirs always use '/' (platform-independent notation) to separate directories. This is also handy for getting platform-independent access when using stdio calls.
+        /// </remarks>
+        /// <returns>READ ONLY null-terminated string of platform's dir separator.</returns>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getDirSeparator(); // IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_permitSymbolicLink(int allow);
 
+        /// <summary>
+        /// Get an array of paths to available CD-ROM drives.
+        /// </summary>
+        /// <remarks>
+        /// The dirs returned are platform-dependent ("D:\" on Win32, "/cdrom" or whatnot on Unix). Dirs are only returned if there is a disc ready and accessible in the drive. So if you've got two drives (D: and E:), and only E: has a disc in it, then that's all you get. If the user inserts a disc in D: and you call this function again, you get both drives. If, on a Unix box, the user unmounts a disc and remounts it elsewhere, the next call to this function will reflect that change.
+        /// This function refers to "CD-ROM" media, but it really means "inserted disc media," such as DVD-ROM, HD-DVD, CDRW, and Blu-Ray discs. It looks for filesystems, and as such won't report an audio CD, unless there's a mounted filesystem track on it.
+        /// The returned value is an array of strings, with a NULL entry to signify the end of the list:
+        /// </remarks>
+        /// <example>
+        /// char **cds = PHYSFS_getCdRomDirs();
+        /// char **i;
+        ///
+        /// for (i = cds; *i != NULL; i++)
+        ///     printf("cdrom dir [%s] is available.\n", *i);
+        ///
+        /// PHYSFS_freeList(cds);
+        /// </example>
+        /// <returns>Null-terminated array of null-terminated strings.</returns>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getCdRomDirs(); // IntPtr => char**
 
+        /// <summary>
+        /// Get the path where the application resides.
+        /// </summary>
+        /// <remarks>
+        /// Helper function.
+        /// Get the "base dir". This is the directory where the application was run from, which is probably the installation directory, and may or may not be the process's current working directory.
+        /// You should probably use the base dir in your search path.
+        /// </remarks>
+        /// <returns>READ ONLY string of base dir in platform-dependent notation.</returns>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getBaseDir(); // IntPtr => const char*
 
+        /// <summary>
+        /// Get the path where user's home directory resides.
+        /// </summary>
+        /// <remarks>
+        /// Helper function.
+        /// Get the "user dir". This is meant to be a suggestion of where a specific user of the system can store files. On Unix, this is her home directory. On systems with no concept of multiple home directories (MacOS, win95), this will default to something like "C:\mybasedir\users\username" where "username" will either be the login name, or "default" if the platform doesn't support multiple users, either. </remarks>
+        /// <returns>READ ONLY string of user dir in platform-dependent notation.</returns>
+        [Obsolete("As of PhysicsFS 2.1, you probably want PHYSFS_getPrefDir().")]
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getUserDir(); // IntPtr => const char*
 
+        /// <summary>
+        /// Get path where PhysicsFS will allow file writing.
+        /// Get the current write dir. The default write dir is NULL.
+        /// </summary>
+        /// <returns>READ ONLY string of write dir in platform-dependent notation, OR NULL IF NO WRITE PATH IS CURRENTLY SET.</returns>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getWriteDir(); // IntPtr => const char*
 
@@ -290,7 +372,7 @@ namespace PhysFS {
 
         [Obsolete("As of PhysicsFS 2.1, use PHYSFS_stat() instead. This function just wraps it anyhow.", error: false)]
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern long PHYSFS_getLastModTime(IntPtr filename);
+        public static extern long PHYSFS_getLastModTime(IntPtr filename); // IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_openWrite(IntPtr filename); // IntPtr (ret) => PHYSFS_File* | IntPtr => const char*
@@ -304,11 +386,13 @@ namespace PhysFS {
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_close(IntPtr handle); // IntPtr => PHYSFS_File*
 
+        [Obsolete("As of PhysicsFS 2.1, use PHYSFS_readBytes() instead. This function just wraps it anyhow. This function never clarified what would happen if you managed to read a partial object, so working at the byte level makes this cleaner for everyone, especially now that PHYSFS_Io interfaces can be supplied by the application.")]
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern long PHYSFS_read(IntPtr handle, IntPtr buffer, uint objSize, uint objCount);
+        public static extern long PHYSFS_read(IntPtr handle, IntPtr buffer, uint objSize, uint objCount); // IntPtr => PHYSFS_File*; IntPtr => const void*;
 
+        [Obsolete("As of PhysicsFS 2.1, use PHYSFS_writeBytes() instead. This function just wraps it anyhow. This function never clarified what would happen if you managed to write a partial object, so working at the byte level makes this cleaner for everyone, especially now that PHYSFS_Io interfaces can be supplied by the application.")]
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern long PHYSFS_write(IntPtr handle, IntPtr buffer, uint objSize, uint objCount);
+        public static extern long PHYSFS_write(IntPtr handle, IntPtr buffer, uint objSize, uint objCount); // IntPtr => PHYSFS_File*; IntPtr => void*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_eof(IntPtr handle); // IntPtr => PHYSFS_File*
@@ -465,7 +549,7 @@ namespace PhysFS {
         public static extern int PHYSFS_mount(IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => const char*; IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_getMountPoint(string dir);
+        public static extern IntPtr PHYSFS_getMountPoint(IntPtr dir); // IntPtr (ret) => const char* | IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_getCdRomDirsCallback(PHYSFS_FP_StringCallback c, IntPtr d);
@@ -546,7 +630,7 @@ namespace PhysFS {
         public static extern void PHYSFS_setErrorCode(PHYSFS_ErrorCode code);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern string PHYSFS_getPrefDir(string org, string app);
+        public static extern IntPtr PHYSFS_getPrefDir(IntPtr org, IntPtr app); // IntPtr (ret) => const char* | IntPtr => const char*; IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_registerArchiver(IntPtr archiver);

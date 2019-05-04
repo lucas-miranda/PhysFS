@@ -39,8 +39,12 @@ namespace PhysFS {
             }
         }
 
+        public string DirSeparator { get { return Marshal.PtrToStringAnsi(Interop.PHYSFS_getDirSeparator()); } }
         public string BaseDirectory { get { return Marshal.PtrToStringAnsi(Interop.PHYSFS_getBaseDir()); } }
+
+        [Obsolete("As of PhysicsFS 2.1, you probably want PhysFS.GetPrefDirectory().")]
         public string UserDirectory { get { return Marshal.PtrToStringAnsi(Interop.PHYSFS_getUserDir()); } }
+
         public string WriteDirectory {
             get {
                 if (!IsInitialized) {
@@ -160,6 +164,25 @@ namespace PhysFS {
             return stat;
         }
 
+        public string GetPrefDirectory(string org, string app) {
+            IntPtr orgStrPtr = Marshal.StringToHGlobalAnsi(org),
+                   appStrPtr = Marshal.StringToHGlobalAnsi(app);
+
+            IntPtr prefDirPtr = Interop.PHYSFS_getPrefDir(orgStrPtr, appStrPtr);
+
+            if (prefDirPtr == IntPtr.Zero) {
+                throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
+            }
+
+            string prefDir = Marshal.PtrToStringAnsi(prefDirPtr);
+
+            Marshal.FreeHGlobal(orgStrPtr);
+            Marshal.FreeHGlobal(orgStrPtr);
+            Marshal.FreeHGlobal(prefDirPtr);
+
+            return prefDir;
+        }
+
         public bool SetSaneConfig(string organization, string appName, string archiveExt, bool includeCdRoms, bool archivesFirst) {
             IntPtr organizationStrPtr = Marshal.StringToHGlobalAnsi(organization),
                    appNameStrPtr = Marshal.StringToHGlobalAnsi(appName),
@@ -217,6 +240,22 @@ namespace PhysFS {
             return ret != 0;
         }
 
+        public string GetMountPoint(string realPath) {
+            IntPtr dirStrPtr = Marshal.StringToHGlobalAnsi(realPath);
+
+            IntPtr mountPointStrPtr = Interop.PHYSFS_getMountPoint(dirStrPtr);
+
+            if (mountPointStrPtr == IntPtr.Zero) {
+                Marshal.FreeHGlobal(dirStrPtr);
+                throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
+            }
+
+            string mountPoint = Marshal.PtrToStringAnsi(mountPointStrPtr);
+
+            Marshal.FreeHGlobal(dirStrPtr);
+            return mountPoint;
+        }
+
         public string GetRealDirectory(string filename) {
             IntPtr filenameStrPtr = Marshal.StringToHGlobalAnsi(filename);
             IntPtr realDirStrPtr = Interop.PHYSFS_getRealDir(filenameStrPtr);
@@ -230,6 +269,20 @@ namespace PhysFS {
             Marshal.FreeHGlobal(realDirStrPtr);
 
             return realDir;
+        }
+
+        [Obsolete("As of PhysicsFS 2.1, use PHYSFS.Stat() instead. This function just wraps it anyhow.", error: false)]
+        public long GetLastModTime(string filename) {
+            IntPtr filenamePtr = Marshal.StringToHGlobalAnsi(filename);
+            long lastModTime = Interop.PHYSFS_getLastModTime(filenamePtr);
+
+            Marshal.FreeHGlobal(filenamePtr);
+
+            if (lastModTime == -1L) {
+                throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
+            }
+
+            return lastModTime;
         }
 
         public IEnumerator<string> EnumerateFiles(string dirName) {
