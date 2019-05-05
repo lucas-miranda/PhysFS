@@ -1,8 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace PhysFS {
+    #region Delegates
+
+    public delegate PHYSFS_EnumerateCallbackResult EnumerateCallback(string dir, string filename);
+    public delegate IEnumerator EnumerateEnumeratorCallback(string dir, string filename);
+
+    #endregion Delegates
+
     public class PhysFS {
         #region Constructors
 
@@ -123,6 +131,8 @@ namespace PhysFS {
                 return archiveTypes.ToArray();
             }
         }
+
+        public bool IsSymbolicLinksPermitted { get { return Convert.ToBoolean(Interop.PHYSFS_symbolicLinksPermitted()); } set { Interop.PHYSFS_permitSymbolicLink(Convert.ToInt32(value)); } }
 
         #endregion Public Properties
 
@@ -306,6 +316,49 @@ namespace PhysFS {
 
             Interop.PHYSFS_freeList(enumerateFilesPtr);
             Marshal.FreeHGlobal(dirStrPtr);
+        }
+
+        public void Enumerate(string dirName, EnumerateCallback callback) {
+            IntPtr dirNameStrPtr = Marshal.StringToHGlobalAnsi(dirName);
+
+            // Interop callback wrapper
+            PHYSFS_EnumerateCallbackResult enumerateCallback(IntPtr data, IntPtr origDir, IntPtr fname) {
+                string dir = Marshal.PtrToStringAnsi(origDir),
+                       filename = Marshal.PtrToStringAnsi(fname);
+
+                return callback(dir, filename);
+            }
+
+            int ret = Interop.PHYSFS_enumerate(dirNameStrPtr, enumerateCallback, d: IntPtr.Zero);
+            CheckReturnValue(ret);
+        }
+
+        public void Enumerate(string dirName, EnumerateEnumeratorCallback callback) {
+            IntPtr dirNameStrPtr = Marshal.StringToHGlobalAnsi(dirName);
+
+            // Interop callback wrapper
+            PHYSFS_EnumerateCallbackResult enumerateCallback(IntPtr data, IntPtr origDir, IntPtr fname) {
+                string dir = Marshal.PtrToStringAnsi(origDir),
+                       filename = Marshal.PtrToStringAnsi(fname);
+
+                PHYSFS_EnumerateCallbackResult result = PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_ERROR;
+
+                IEnumerator e = callback(dir, filename);
+                while (e.MoveNext()) {
+                    if (e.Current is bool callbackRet) {
+                        if (callbackRet) {
+                            result = PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_OK;
+                        } else {
+                            result = PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_STOP;
+                        }
+                    }
+                }
+
+                return result;
+            }
+
+            int ret = Interop.PHYSFS_enumerate(dirNameStrPtr, enumerateCallback, d: IntPtr.Zero);
+            CheckReturnValue(ret);
         }
 
         #endregion Public Methods

@@ -1,5 +1,6 @@
 ﻿#define PRINT_INFO
 
+using System.Collections;
 using System.Diagnostics;
 using System.Text;
 
@@ -185,6 +186,74 @@ namespace PhysFS.Test {
 
             PhysFS.Deinitialize();
             return true;
+        }
+
+        [TestCase("PhysFS.Enumerate")]
+        public static bool Test_Enumerate() {
+            PhysFS.Initialize();
+            PhysFS.Instance.Mount("folder2", mountPoint: "", appendToPath: true);
+
+            Debug.WriteLine("  Enumerating all files (explicit callback result returning):");
+
+            PhysFS.Instance.Enumerate(
+                "/",
+                FileCallbackExplicit
+            );
+
+            Debug.WriteLine("  Enumerating all files (using enumerator):");
+
+            PhysFS.Instance.Enumerate(
+                "/",
+                FileCallbackEnumerator
+            );
+
+            PhysFS.Deinitialize();
+
+            return true;
+
+            PHYSFS_EnumerateCallbackResult FileCallbackExplicit(string dir, string filename) {
+                /*
+                To stop enumerating:
+
+                if (filename.Contains("test")) {
+                    Debug.WriteLine("    > stopping...");
+                    return PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_STOP;
+                }
+
+
+                To signaling an error to PhysFS:
+
+                if (filename.Contains("test")) {
+                    Debug.WriteLine("    > some error has happened!");
+                    return PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_ERROR;
+                }
+                */
+
+                Debug.WriteLine($"    dir: {dir}, filename: {filename}");
+                return PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_OK;
+            }
+
+            IEnumerator FileCallbackEnumerator(string dir, string filename) {
+                /*
+                To stop enumerating:
+
+                if (filename.Contains("test")) {
+                    Debug.WriteLine("    > stopping...");
+                    yield false;
+                }
+
+
+                To signaling an error to PhysFS:
+
+                if (filename.Contains("test")) {
+                    Debug.WriteLine("    > some error has happened!");
+                    yield break;
+                }
+                */
+
+                Debug.WriteLine($"    dir: {dir}, filename: {filename}");
+                yield return true;
+            }
         }
 
         #endregion PHYSFSFileWrite Tests

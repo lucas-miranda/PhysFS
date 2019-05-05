@@ -52,57 +52,15 @@ namespace PhysFS {
 
     #endregion Enums
 
-    #region Function Pointer Types
-
-    // Callbacks
-
-    // PHYSFS_EnumerateCallbackResult (*PHYSFS_EnumerateCallback)(void *data, const char *origdir, const char *fname);
-    public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_EnumerateCallback(IntPtr data, string origDir, string fname);
-
-    // void (*PHYSFS_StringCallback)(void *data, const char *str);
-    public delegate void PHYSFS_FP_StringCallback(IntPtr data, string str);
-
-    // void (*PHYSFS_EnumFilesCallback)(void *data, const char *origdir, const char *fname);
-    public delegate void PHYSFS_FP_EnumFilesCallback(IntPtr data, string origdir, string fname);
-
-    // PHYSFS_Allocator
-    public delegate int PHYSFS_FP_Init();
-    public delegate void PHYSFS_FP_Deinit();
-    public delegate IntPtr PHYSFS_FP_Malloc(ulong size);
-    public delegate IntPtr PHYSFS_FP_Realloc(IntPtr handle, ulong newSize);
-    public delegate void PHYSFS_FP_Free(IntPtr handle);
-
-    // PHYSFS_Archiver
-    public delegate IntPtr PHYSFS_FP_openArchive(IntPtr io, string name, int forWrite, IntPtr claimed);
-    public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_enumerate(IntPtr opaque, string dirname, PHYSFS_FP_EnumerateCallback cb, string origDir, IntPtr callbackdata);
-    public delegate IntPtr PHYSFS_FP_openRead(IntPtr opaque, string fnm);
-    public delegate IntPtr PHYSFS_FP_openAppend(IntPtr opaque, string fnm);
-    public delegate int PHYSFS_FP_remove(IntPtr opaque, string filename);
-    public delegate int PHYSFS_FP_mkdir(IntPtr opaque, string filename);
-    public delegate int PHYSFS_FP_stat(IntPtr opaque, string fn, IntPtr stat);
-    public delegate void PHYSFS_FP_closeArchive(IntPtr opaque);
-
-    // PHYSFS_Io
-    public delegate long PHYSFS_FP_read(IntPtr io, IntPtr buf, uint len);
-    public delegate long PHYSFS_FP_write(IntPtr io, IntPtr buf, uint len);
-    public delegate int PHYSFS_FP_seek(IntPtr io, uint offset);
-    public delegate long PHYSFS_FP_tell(IntPtr io);
-    public delegate long PHYSFS_FP_length(IntPtr io);
-    public delegate IntPtr PHYSFS_FP_duplicate(IntPtr io);
-    public delegate int PHYSFS_FP_flush(IntPtr io);
-    public delegate void PHYSFS_FP_destroy(IntPtr io);
-
-    #endregion Function Pointer Types
-
     #region Data Structures
 
     [StructLayout(LayoutKind.Sequential)]
     public struct PHYSFS_Allocator {
-        public PHYSFS_FP_Init Init;         // int   (*Init)(void)
-        public PHYSFS_FP_Deinit Deinit;     // void  (*Deinit)(void)
-        public PHYSFS_FP_Malloc Malloc;     // void* (*Malloc)(PHYSFS_uint64)
-        public PHYSFS_FP_Realloc Realloc;   // void* (*Realloc)(void*, PHYSFS_uint64)
-        public PHYSFS_FP_Free Free;         // void  (*Free)(void*)
+        public Interop.PHYSFS_FP_Init Init;         // int   (*Init)(void)
+        public Interop.PHYSFS_FP_Deinit Deinit;     // void  (*Deinit)(void)
+        public Interop.PHYSFS_FP_Malloc Malloc;     // void* (*Malloc)(PHYSFS_uint64)
+        public Interop.PHYSFS_FP_Realloc Realloc;   // void* (*Realloc)(void*, PHYSFS_uint64)
+        public Interop.PHYSFS_FP_Free Free;         // void  (*Free)(void*)
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -118,14 +76,14 @@ namespace PhysFS {
     public struct PHYSFS_Archiver {
         public uint Version;
         public PHYSFS_ArchiveInfo Info;
-        public PHYSFS_FP_openArchive OpenArchive;       // void* (*openArchive) (PHYSFS_Io *io, const char *name, int forWrite, int *claimed)
-        public PHYSFS_FP_enumerate Enumerate;           // PHYSFS_EnumerateCallbackResult (*enumerate) (void *opaque, const char *dirname, PHYSFS_EnumerateCallback cb, const char *origdir, void *callbackdata)
-        public PHYSFS_FP_openRead OpenRead;             // PHYSFS_Io* (*openRead) (void *opaque, const char *fnm)
-        public PHYSFS_FP_openAppend OpenAppend;         // PHYSFS_Io* (*openAppend) (void *opaque, const char *fnm)
-        public PHYSFS_FP_remove Remove;                 // int (*remove) (void *opaque, const char *filename)
-        public PHYSFS_FP_mkdir Mkdir;                   // int (*mkdir) (void *opaque, const char *filename)
-        public PHYSFS_FP_stat Stat;                     // int (*stat) (void *opaque, const char *fn, PHYSFS_Stat *stat)
-        public PHYSFS_FP_closeArchive CloseArchive;     // void (*closeArchive) (void *opaque)
+        public Interop.PHYSFS_FP_openArchive OpenArchive;       // void* (*openArchive) (PHYSFS_Io *io, const char *name, int forWrite, int *claimed)
+        public Interop.PHYSFS_FP_enumerate Enumerate;           // PHYSFS_EnumerateCallbackResult (*enumerate) (void *opaque, const char *dirname, PHYSFS_EnumerateCallback cb, const char *origdir, void *callbackdata)
+        public Interop.PHYSFS_FP_openRead OpenRead;             // PHYSFS_Io* (*openRead) (void *opaque, const char *fnm)
+        public Interop.PHYSFS_FP_openAppend OpenAppend;         // PHYSFS_Io* (*openAppend) (void *opaque, const char *fnm)
+        public Interop.PHYSFS_FP_remove Remove;                 // int (*remove) (void *opaque, const char *filename)
+        public Interop.PHYSFS_FP_mkdir Mkdir;                   // int (*mkdir) (void *opaque, const char *filename)
+        public Interop.PHYSFS_FP_stat Stat;                     // int (*stat) (void *opaque, const char *fn, PHYSFS_Stat *stat)
+        public Interop.PHYSFS_FP_closeArchive CloseArchive;     // void (*closeArchive) (void *opaque)
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -136,15 +94,15 @@ namespace PhysFS {
     [StructLayout(LayoutKind.Sequential)]
     public struct PHYSFS_Io {
         public uint Version;
-        public IntPtr Opaque;                   // void*
-        public PHYSFS_FP_read Read;             // PHYSFS_sint64 (*read) (struct PHYSFS_Io *io, void *buf, PHYSFS_uin64 len)
-        public PHYSFS_FP_write Write;           // PHYSFS_sint64 (*write) (struct PHYSFS_Io *io, const void *buf, PHYSFS_uin64 len)
-        public PHYSFS_FP_seek Seek;             // int (*seek) (struct PHYSFS_Io *io, PHYSFS_uint64 offset)
-        public PHYSFS_FP_tell Tell;             // PHYSFS_sint64 (*tell) (struct PHYSFS_Io *io)
-        public PHYSFS_FP_length Length;         // PHYSFS_sint64 (*length) (struct PHYSFS_Io *io)
-        public PHYSFS_FP_duplicate Duplicate;   // struct PHYSFS_Io* (*duplicate) (struct PHYSFS_Io *io)
-        public PHYSFS_FP_flush Flush;           // int (*flush) (struct PHYSFS_Io *io)
-        public PHYSFS_FP_destroy Destroy;       // void (*destroy) (struct PHYSFS_Io *io)
+        public IntPtr Opaque;                           // void*
+        public Interop.PHYSFS_FP_read Read;             // PHYSFS_sint64 (*read) (struct PHYSFS_Io *io, void *buf, PHYSFS_uin64 len)
+        public Interop.PHYSFS_FP_write Write;           // PHYSFS_sint64 (*write) (struct PHYSFS_Io *io, const void *buf, PHYSFS_uin64 len)
+        public Interop.PHYSFS_FP_seek Seek;             // int (*seek) (struct PHYSFS_Io *io, PHYSFS_uint64 offset)
+        public Interop.PHYSFS_FP_tell Tell;             // PHYSFS_sint64 (*tell) (struct PHYSFS_Io *io)
+        public Interop.PHYSFS_FP_length Length;         // PHYSFS_sint64 (*length) (struct PHYSFS_Io *io)
+        public Interop.PHYSFS_FP_duplicate Duplicate;   // struct PHYSFS_Io* (*duplicate) (struct PHYSFS_Io *io)
+        public Interop.PHYSFS_FP_flush Flush;           // int (*flush) (struct PHYSFS_Io *io)
+        public Interop.PHYSFS_FP_destroy Destroy;       // void (*destroy) (struct PHYSFS_Io *io)
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -168,6 +126,48 @@ namespace PhysFS {
 
     public static class Interop {
         private const string nativeLibName = "physfs";
+
+        #region Function Pointer Types
+
+        // Callbacks
+
+        // PHYSFS_EnumerateCallbackResult (*PHYSFS_EnumerateCallback)(void *data, const char *origdir, const char *fname);
+        public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_EnumerateCallback(IntPtr data, IntPtr origDir, IntPtr fname);
+
+        // void (*PHYSFS_StringCallback)(void *data, const char *str);
+        public delegate void PHYSFS_FP_StringCallback(IntPtr data, string str);
+
+        // void (*PHYSFS_EnumFilesCallback)(void *data, const char *origdir, const char *fname);
+        public delegate void PHYSFS_FP_EnumFilesCallback(IntPtr data, string origdir, string fname);
+
+        // PHYSFS_Allocator
+        public delegate int PHYSFS_FP_Init();
+        public delegate void PHYSFS_FP_Deinit();
+        public delegate IntPtr PHYSFS_FP_Malloc(ulong size);
+        public delegate IntPtr PHYSFS_FP_Realloc(IntPtr handle, ulong newSize);
+        public delegate void PHYSFS_FP_Free(IntPtr handle);
+
+        // PHYSFS_Archiver
+        public delegate IntPtr PHYSFS_FP_openArchive(IntPtr io, string name, int forWrite, IntPtr claimed);
+        public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_enumerate(IntPtr opaque, string dirname, PHYSFS_FP_EnumerateCallback cb, string origDir, IntPtr callbackdata);
+        public delegate IntPtr PHYSFS_FP_openRead(IntPtr opaque, string fnm);
+        public delegate IntPtr PHYSFS_FP_openAppend(IntPtr opaque, string fnm);
+        public delegate int PHYSFS_FP_remove(IntPtr opaque, string filename);
+        public delegate int PHYSFS_FP_mkdir(IntPtr opaque, string filename);
+        public delegate int PHYSFS_FP_stat(IntPtr opaque, string fn, IntPtr stat);
+        public delegate void PHYSFS_FP_closeArchive(IntPtr opaque);
+
+        // PHYSFS_Io
+        public delegate long PHYSFS_FP_read(IntPtr io, IntPtr buf, uint len);
+        public delegate long PHYSFS_FP_write(IntPtr io, IntPtr buf, uint len);
+        public delegate int PHYSFS_FP_seek(IntPtr io, uint offset);
+        public delegate long PHYSFS_FP_tell(IntPtr io);
+        public delegate long PHYSFS_FP_length(IntPtr io);
+        public delegate IntPtr PHYSFS_FP_duplicate(IntPtr io);
+        public delegate int PHYSFS_FP_flush(IntPtr io);
+        public delegate void PHYSFS_FP_destroy(IntPtr io);
+
+        #endregion Function Pointer Types
 
         #region Public Methods
 
@@ -257,7 +257,7 @@ namespace PhysFS {
         public static extern IntPtr PHYSFS_getDirSeparator(); // IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_permitSymbolicLink(int allow);
+        public static extern void PHYSFS_permitSymbolicLink(int allow); //
 
         /// <summary>
         /// Get an array of paths to available CD-ROM drives.
@@ -524,7 +524,7 @@ namespace PhysFS {
         public static extern int PHYSFS_isInit(); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_symbolicLinksPermitted();
+        public static extern int PHYSFS_symbolicLinksPermitted(); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_setAllocator(IntPtr allocator);
@@ -588,7 +588,7 @@ namespace PhysFS {
         public static extern int PHYSFS_ucs4stricmp(UIntPtr str1, UIntPtr str2);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_enumerate(string dir, PHYSFS_FP_EnumerateCallback c, IntPtr d);
+        public static extern int PHYSFS_enumerate(IntPtr dir, PHYSFS_FP_EnumerateCallback c, IntPtr d); // IntPtr => const char*; IntPtr => void*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_unmount(IntPtr oldDir); // IntPtr => const char*
@@ -627,7 +627,7 @@ namespace PhysFS {
         public static extern IntPtr PHYSFS_getErrorByCode(PHYSFS_ErrorCode code); // IntPtr (ret) => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_setErrorCode(PHYSFS_ErrorCode code);
+        public static extern void PHYSFS_setErrorCode(PHYSFS_ErrorCode code); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getPrefDir(IntPtr org, IntPtr app); // IntPtr (ret) => const char* | IntPtr => const char*; IntPtr => const char*;
