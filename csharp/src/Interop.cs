@@ -135,10 +135,11 @@ namespace PhysFS {
         public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_EnumerateCallback(IntPtr data, IntPtr origDir, IntPtr fname);
 
         // void (*PHYSFS_StringCallback)(void *data, const char *str);
-        public delegate void PHYSFS_FP_StringCallback(IntPtr data, string str);
+        public delegate void PHYSFS_FP_StringCallback(IntPtr data, IntPtr str);
 
+        [Obsolete("As of PhysicsFS 2.1, Use PHYSFS_EnumerateCallback with PHYSFS_enumerate() instead; it gives you more control over the process.")]
         // void (*PHYSFS_EnumFilesCallback)(void *data, const char *origdir, const char *fname);
-        public delegate void PHYSFS_FP_EnumFilesCallback(IntPtr data, string origdir, string fname);
+        public delegate void PHYSFS_FP_EnumFilesCallback(IntPtr data, IntPtr origdir, IntPtr fname);
 
         // PHYSFS_Allocator
         public delegate int PHYSFS_FP_Init();
@@ -552,13 +553,14 @@ namespace PhysFS {
         public static extern IntPtr PHYSFS_getMountPoint(IntPtr dir); // IntPtr (ret) => const char* | IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_getCdRomDirsCallback(PHYSFS_FP_StringCallback c, IntPtr d);
+        public static extern void PHYSFS_getCdRomDirsCallback(PHYSFS_FP_StringCallback c, IntPtr d); // IntPtr => void*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_getSearchPathCallback(PHYSFS_FP_StringCallback c, IntPtr d);
+        public static extern void PHYSFS_getSearchPathCallback(PHYSFS_FP_StringCallback c, IntPtr d); // IntPtr => void*;
 
+        [Obsolete("As of PhysicsFS 2.1, use PHYSFS_enumerate() instead. This function has no way to report errors (or to have the callback signal an error or request a stop), so if data will be lost, your callback has no way to direct the process, and your calling app has no way to know.")]
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_enumerateFilesCallback(string dir, PHYSFS_FP_EnumFilesCallback c, IntPtr d);
+        public static extern void PHYSFS_enumerateFilesCallback(IntPtr dir, PHYSFS_FP_EnumFilesCallback c, IntPtr d); // IntPtr => const char*; IntPtr => void*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_utfFromUcs4(UIntPtr src, string dst, ulong len);

@@ -9,6 +9,9 @@ namespace PhysFS {
     public delegate PHYSFS_EnumerateCallbackResult EnumerateCallback(string dir, string filename);
     public delegate IEnumerator EnumerateEnumeratorCallback(string dir, string filename);
 
+    public delegate void EnumerateSearchPathCallback(string path);
+    public delegate void EnumerateCdRomDirsCallback(string path);
+
     #endregion Delegates
 
     public class PhysFS {
@@ -359,6 +362,24 @@ namespace PhysFS {
 
             int ret = Interop.PHYSFS_enumerate(dirNameStrPtr, enumerateCallback, d: IntPtr.Zero);
             CheckReturnValue(ret);
+        }
+
+        public void EnumerateSearchPath(EnumerateSearchPathCallback callback) {
+            void searchPathCallback(IntPtr data, IntPtr str) {
+                string path = Marshal.PtrToStringAnsi(str);
+                callback(path);
+            }
+
+            Interop.PHYSFS_getSearchPathCallback(searchPathCallback, IntPtr.Zero);
+        }
+
+        public void EnumerateCdRomDirs(EnumerateCdRomDirsCallback callback) {
+            void cdRomDirsCallback(IntPtr data, IntPtr str) {
+                string path = Marshal.PtrToStringAnsi(str);
+                callback(path);
+            }
+
+            Interop.PHYSFS_getCdRomDirsCallback(cdRomDirsCallback, IntPtr.Zero);
         }
 
         #endregion Public Methods
