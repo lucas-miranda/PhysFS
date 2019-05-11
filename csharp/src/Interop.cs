@@ -132,40 +132,82 @@ namespace PhysFS {
         // Callbacks
 
         // PHYSFS_EnumerateCallbackResult (*PHYSFS_EnumerateCallback)(void *data, const char *origdir, const char *fname);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_EnumerateCallback(IntPtr data, IntPtr origDir, IntPtr fname);
 
         // void (*PHYSFS_StringCallback)(void *data, const char *str);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void PHYSFS_FP_StringCallback(IntPtr data, IntPtr str);
 
         [Obsolete("As of PhysicsFS 2.1, Use PHYSFS_EnumerateCallback with PHYSFS_enumerate() instead; it gives you more control over the process.")]
         // void (*PHYSFS_EnumFilesCallback)(void *data, const char *origdir, const char *fname);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void PHYSFS_FP_EnumFilesCallback(IntPtr data, IntPtr origdir, IntPtr fname);
 
         // PHYSFS_Allocator
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int PHYSFS_FP_Init();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void PHYSFS_FP_Deinit();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr PHYSFS_FP_Malloc(ulong size);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr PHYSFS_FP_Realloc(IntPtr handle, ulong newSize);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void PHYSFS_FP_Free(IntPtr handle);
 
         // PHYSFS_Archiver
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr PHYSFS_FP_openArchive(IntPtr io, string name, int forWrite, IntPtr claimed);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_enumerate(IntPtr opaque, string dirname, PHYSFS_FP_EnumerateCallback cb, string origDir, IntPtr callbackdata);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr PHYSFS_FP_openRead(IntPtr opaque, string fnm);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr PHYSFS_FP_openAppend(IntPtr opaque, string fnm);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int PHYSFS_FP_remove(IntPtr opaque, string filename);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int PHYSFS_FP_mkdir(IntPtr opaque, string filename);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int PHYSFS_FP_stat(IntPtr opaque, string fn, IntPtr stat);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void PHYSFS_FP_closeArchive(IntPtr opaque);
 
         // PHYSFS_Io
-        public delegate long PHYSFS_FP_read(IntPtr io, IntPtr buf, uint len);
-        public delegate long PHYSFS_FP_write(IntPtr io, IntPtr buf, uint len);
-        public delegate int PHYSFS_FP_seek(IntPtr io, uint offset);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate long PHYSFS_FP_read(IntPtr io, IntPtr buf, ulong len);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate long PHYSFS_FP_write(IntPtr io, IntPtr buf, ulong len);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int PHYSFS_FP_seek(IntPtr io, ulong offset);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate long PHYSFS_FP_tell(IntPtr io);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate long PHYSFS_FP_length(IntPtr io);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr PHYSFS_FP_duplicate(IntPtr io);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int PHYSFS_FP_flush(IntPtr io);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void PHYSFS_FP_destroy(IntPtr io);
 
         #endregion Function Pointer Types
@@ -614,7 +656,7 @@ namespace PhysFS {
         public static extern long PHYSFS_writeBytes(IntPtr handle, IntPtr buffer, ulong len); // IntPtr => PHYSFS_File*; IntPtr => void*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_mountIo(IntPtr io, string newDir, string mountPoint, int appendToPath);
+        public static extern int PHYSFS_mountIo(IntPtr io, IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => PHYSFS_Io*; IntPtr => const char*; IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_mountMemory(IntPtr buf, ulong len, IntPtr del, string newDir, string mountPoint, int appendToPath);

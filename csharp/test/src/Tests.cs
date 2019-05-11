@@ -12,7 +12,8 @@ namespace PhysFS.Test {
 
         public const string TestArchiveFilePath = "folder.zip",
                             TestFilepath = "test.txt",
-                            TestWriteDir = "folder2";
+                            TestFolder = "folder",
+                            TestWriteDir = "folder";
 
         #endregion Public Members
 
@@ -69,10 +70,9 @@ namespace PhysFS.Test {
             return true;
         }
 
-        /*
         [TestCase("PHYSFS_getDirSeparator")]
         public static bool Test_DirSeparator() {
-            string str = PhysFS.PhysFS.PHYSFS_getDirSeparator();
+            string str = PhysFS.DirSeparator;
 
 #if PRINT_INFO
             Debug.WriteLine($"  Dir Separator: {str}");
@@ -80,7 +80,6 @@ namespace PhysFS.Test {
 
             return true;
         }
-        */
 
         [TestCase("PHYSFS_getRomsDirs, PHYSFS_getBaseDir, PHYSFS_getUserDir")]
         public static bool Test_GetDirs() {
@@ -153,11 +152,11 @@ namespace PhysFS.Test {
         [TestCase("Stream.PhysFSFIleReader")]
         public static bool Test_PhysFSFileReader() {
             PhysFS.Initialize();
-            PhysFS.Instance.Mount("folder2", mountPoint: "", appendToPath: true);
+            PhysFS.Instance.Mount(TestFolder, mountPoint: "", appendToPath: true);
 
             Debug.WriteLine($"  Reading 'just a text.txt' file");
 
-            using (PhysFSFileReader stream = new PhysFSFileReader("just a text.txt")) {
+            using (PhysFSFileReader stream = new PhysFSFileReader("test.txt")) {
                 byte[] buffer = new byte[stream.Length];
                 int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
@@ -171,12 +170,14 @@ namespace PhysFS.Test {
 
             return true;
         }
+
+        #endregion PHYSFSFileWrite Tests
         
         [TestCase("PHYSFS_stat")]
         public static bool Test_Stat() {
             PhysFS.Initialize();
-            PhysFS.Instance.Mount("folder2", mountPoint: "", appendToPath: true);
-            PHYSFS_Stat stat = PhysFS.Stat("just a text.txt");
+            PhysFS.Instance.Mount(TestFolder, mountPoint: "", appendToPath: true);
+            PHYSFS_Stat stat = PhysFS.Stat("test.txt");
 
             System.DateTimeOffset createTime = System.DateTimeOffset.FromUnixTimeSeconds(stat.CreateTime),
                                   modTime = System.DateTimeOffset.FromUnixTimeSeconds(stat.ModTime),
@@ -191,7 +192,7 @@ namespace PhysFS.Test {
         [TestCase("PhysFS.Enumerate")]
         public static bool Test_Enumerate() {
             PhysFS.Initialize();
-            PhysFS.Instance.Mount("folder2", mountPoint: "", appendToPath: true);
+            PhysFS.Instance.Mount(TestFolder, mountPoint: "", appendToPath: true);
 
             Debug.WriteLine("  Enumerating all files (explicit callback result returning):");
 
@@ -256,7 +257,60 @@ namespace PhysFS.Test {
             }
         }
 
-        #endregion PHYSFSFileWrite Tests
+        /*
+        [TestCase("Test Test")]
+        public static bool Test_Test() {
+            PhysFS.Initialize();
+            PhysFS.Instance.Mount("folder", mountPoint: "", appendToPath: true);
+
+            TestStream stream = new TestStream();
+
+            PhysFS.Instance.MountIOStream(stream, "aaa", mountPoint: "a/", appendToPath: true);
+
+            PhysFS.Instance.Enumerate(
+                "/",
+                (string dir, string filename) => {
+                    Debug.WriteLine($"    dir: {dir}, filename: {filename}");
+                    return PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_OK;
+                }
+            );
+
+            PhysFS.Instance.EnumerateSearchPath(
+                (string path) => {
+                    Debug.WriteLine($"path: {path}");
+                }
+            );
+
+            PhysFS.Deinitialize();
+            return true;
+        }
+        */
+
+        /*
+        [TestCase("Test Perf")]
+        public static bool Test_Perf() {
+            int a;
+            bool r;
+            int b = 1;
+
+            Stopwatch sw1 = Stopwatch.StartNew();
+            for (int i = 0; i < 100000000; i++) {
+                r = System.Convert.ToBoolean(b);
+            }
+            sw1.Stop();
+
+            Stopwatch sw2 = Stopwatch.StartNew();
+            for (int i = 0; i < 100000000; i++) {
+                r = b != 0;
+            }
+            sw2.Stop();
+
+            Debug.WriteLine($"time1: {sw1.Elapsed}\ntime2: {sw2.Elapsed}");
+
+            return true;
+        }
+        */
+
 
         #endregion Public Methods
     }

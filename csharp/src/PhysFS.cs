@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+using PhysFS.Stream;
+using PhysFS.Util;
+
 namespace PhysFS {
     #region Delegates
 
@@ -40,7 +43,7 @@ namespace PhysFS {
             get {
                 int size = Marshal.SizeOf<PHYSFS_Version>();
                 IntPtr ptr = Marshal.AllocHGlobal(size);
-                
+
                 Interop.PHYSFS_getLinkedVersion(ptr);
 
                 PHYSFS_Version version = Marshal.PtrToStructure<PHYSFS_Version>(ptr);
@@ -50,7 +53,8 @@ namespace PhysFS {
             }
         }
 
-        public string DirSeparator { get { return Marshal.PtrToStringAnsi(Interop.PHYSFS_getDirSeparator()); } }
+        public static string DirSeparator { get { return Marshal.PtrToStringAnsi(Interop.PHYSFS_getDirSeparator()); } }
+
         public string BaseDirectory { get { return Marshal.PtrToStringAnsi(Interop.PHYSFS_getBaseDir()); } }
 
         [Obsolete("As of PhysicsFS 2.1, you probably want PhysFS.GetPrefDirectory().")]
@@ -135,7 +139,7 @@ namespace PhysFS {
             }
         }
 
-        public bool IsSymbolicLinksPermitted { get { return Convert.ToBoolean(Interop.PHYSFS_symbolicLinksPermitted()); } set { Interop.PHYSFS_permitSymbolicLink(Convert.ToInt32(value)); } }
+        public bool IsSymbolicLinksPermitted { get { return Interop.PHYSFS_symbolicLinksPermitted() != 0; } set { Interop.PHYSFS_permitSymbolicLink(value ? 1 : 0); } }
 
         #endregion Public Properties
 
@@ -201,7 +205,7 @@ namespace PhysFS {
                    appNameStrPtr = Marshal.StringToHGlobalAnsi(appName),
                    archiveExtStrPtr = Marshal.StringToHGlobalAnsi(archiveExt);
 
-            int ret = Interop.PHYSFS_setSaneConfig(organizationStrPtr, appNameStrPtr, archiveExtStrPtr, Convert.ToInt32(includeCdRoms), Convert.ToInt32(archivesFirst));
+            int ret = Interop.PHYSFS_setSaneConfig(organizationStrPtr, appNameStrPtr, archiveExtStrPtr, includeCdRoms ? 1 : 0, archivesFirst ? 1 : 0);
 
             Marshal.FreeHGlobal(organizationStrPtr);
             Marshal.FreeHGlobal(appNameStrPtr);
@@ -240,10 +244,23 @@ namespace PhysFS {
             IntPtr newDirStrPtr = Marshal.StringToHGlobalAnsi(newDir),
                    mountPointStrPtr = Marshal.StringToHGlobalAnsi(mountPoint);
 
-            int ret = Interop.PHYSFS_mount(newDirStrPtr, mountPointStrPtr, Convert.ToInt32(appendToPath));
+            int ret = Interop.PHYSFS_mount(newDirStrPtr, mountPointStrPtr, appendToPath ? 1 : 0);
 
             CheckReturnValue(ret);
             return ret != 0;
+        }
+
+        public void MountIOStream(IPhysIOStream ioStream, string newDir, string mountPoint, bool appendToPath) {
+            IntPtr ioStructPtr = PrepareIOStruct(ioStream),
+                   newDirStrPtr = Marshal.StringToHGlobalAnsi(newDir),
+                   mountPointStrPtr = Marshal.StringToHGlobalAnsi(mountPoint);
+
+            int ret = Interop.PHYSFS_mountIo(ioStructPtr, newDirStrPtr, mountPointStrPtr, appendToPath ? 1 : 0);
+
+            Marshal.FreeHGlobal(newDirStrPtr);
+            Marshal.FreeHGlobal(mountPointStrPtr);
+
+            CheckReturnValue(ret);
         }
 
         public bool Unmount(string oldDir) {
@@ -399,6 +416,63 @@ namespace PhysFS {
             }
 
             throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
+        }
+
+        private static IntPtr PrepareIOStruct(IPhysIOStream ioStream) {
+            PHYSFS_Io ioStruct = new PHYSFS_Io {
+                Version = ioStream.Version,
+                Opaque = IntPtr.Zero,
+                Seek = (IntPtr io, ulong offset) => {
+                    return ioStream.Seek(offset) ? 1 : 0;
+                },
+                Tell = (IntPtr io) => {
+                    return ioStream.Tell();
+                },
+                Length = (IntPtr io) => {
+                    return ioStream.Length();
+                },
+                Duplicate = (IntPtr io) => {
+                    IPhysIOStream ioStreamClone = ioStream.Duplicate();
+                    IntPtr ioStructClonePtr = PrepareIOStruct(ioStreamClone);
+                    return ioStructClonePtr;
+                },
+                Flush = (IntPtr io) => {
+                    return ioStream.Flush() ? 1 : 0;
+                }
+            };
+
+            if (ioStream.CanRead) {
+                ioStruct.Read = (IntPtr io, IntPtr buf, ulong len) => {
+                    byte[] buffer = new byte[len];
+                    long bytesRead = ioStream.Read(buffer, len);
+
+                    if (bytesRead > 0L) {
+                        Helper.MarshalCopy(buffer, 0UL, buf, len);
+                    }
+
+                    return bytesRead;
+                };
+            }
+
+            if (ioStream.CanWrite) {
+                ioStruct.Write = (IntPtr io, IntPtr buf, ulong len) => {
+                    byte[] buffer = new byte[len];
+                    Helper.MarshalCopy(buf, buffer, 0UL, len);
+                    long bytesWritten = ioStream.Write(buffer, len);
+                    return bytesWritten;
+                };
+            }
+
+            IntPtr ioPtr = Marshal.AllocHGlobal(Marshal.SizeOf<PHYSFS_Io>());
+
+            ioStruct.Destroy = (IntPtr io) => {
+                ioStream.Destroy();
+                Marshal.FreeHGlobal(ioPtr); // we must free this, otherwise no one will do
+            };
+
+            Marshal.StructureToPtr(ioStruct, ioPtr, fDeleteOld: false);
+
+            return ioPtr;
         }
 
         #endregion Private Methdods
