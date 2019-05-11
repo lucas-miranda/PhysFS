@@ -262,7 +262,7 @@ namespace PhysFS.Test {
             PhysFS.Initialize();
 
             byte[] folderBytes = System.IO.File.ReadAllBytes("folder.zip");
-            Debug.WriteLine($"  reading 'folder.zip', size: {folderBytes.Length} bytes");
+            Debug.WriteLine($"  Reading 'folder.zip', size: {folderBytes.Length} bytes");
 
             Debug.WriteLine("  Mounting file on memory");
             PhysFS.Instance.MountMemory(folderBytes, "memory-file.zip", "/memory-mount-test/", appendToPath: true);
@@ -274,60 +274,19 @@ namespace PhysFS.Test {
             return true;
         }
 
-        /*
-        [TestCase("Test Test")]
-        public static bool Test_Test() {
+        [TestCase("PhysFS.MountIOStream")]
+        public static bool Test_MountIOStream() {
             PhysFS.Initialize();
-            PhysFS.Instance.Mount("folder", mountPoint: "", appendToPath: true);
 
-            TestStream stream = new TestStream();
+            TestStream stream = new TestStream("folder.zip");
+            PhysFS.Instance.MountIOStream(stream, "file-from-iostream.zip", mountPoint: "/", appendToPath: true);
 
-            PhysFS.Instance.MountIOStream(stream, "aaa", mountPoint: "a/", appendToPath: true);
-
-            PhysFS.Instance.Enumerate(
-                "/",
-                (string dir, string filename) => {
-                    Debug.WriteLine($"    dir: {dir}, filename: {filename}");
-                    return PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_OK;
-                }
-            );
-
-            PhysFS.Instance.EnumerateSearchPath(
-                (string path) => {
-                    Debug.WriteLine($"path: {path}");
-                }
-            );
+            ShowFilesAt("/");
+            ShowSearchPaths();
 
             PhysFS.Deinitialize();
             return true;
         }
-        */
-
-        /*
-        [TestCase("Test Perf")]
-        public static bool Test_Perf() {
-            int a;
-            bool r;
-            int b = 1;
-
-            Stopwatch sw1 = Stopwatch.StartNew();
-            for (int i = 0; i < 100000000; i++) {
-                r = System.Convert.ToBoolean(b);
-            }
-            sw1.Stop();
-
-            Stopwatch sw2 = Stopwatch.StartNew();
-            for (int i = 0; i < 100000000; i++) {
-                r = b != 0;
-            }
-            sw2.Stop();
-
-            Debug.WriteLine($"time1: {sw1.Elapsed}\ntime2: {sw2.Elapsed}");
-
-            return true;
-        }
-        */
-
 
         #endregion Public Methods
 
