@@ -257,6 +257,23 @@ namespace PhysFS.Test {
             }
         }
 
+        [TestCase("PhysFS.MountMemory")]
+        public static bool Test_MountMemory() {
+            PhysFS.Initialize();
+
+            byte[] folderBytes = System.IO.File.ReadAllBytes("folder.zip");
+            Debug.WriteLine($"  reading 'folder.zip', size: {folderBytes.Length} bytes");
+
+            Debug.WriteLine("  Mounting file on memory");
+            PhysFS.Instance.MountMemory(folderBytes, "memory-file.zip", "/memory-mount-test/", appendToPath: true);
+
+            ShowFilesAt("/");
+            ShowSearchPaths();
+
+            PhysFS.Deinitialize();
+            return true;
+        }
+
         /*
         [TestCase("Test Test")]
         public static bool Test_Test() {
@@ -313,5 +330,44 @@ namespace PhysFS.Test {
 
 
         #endregion Public Methods
+
+        #region Private Methods
+
+        private static void ShowFilesAt(string baseDir, int tab = 0) {
+            string tabString = new string(' ', tab * 2);
+            Debug.WriteLine($"  {tabString}Files at '{baseDir}':\n");
+
+            PhysFS.Instance.Enumerate(
+                baseDir,
+                (string dir, string filename) => {
+                    Debug.WriteLine($"    {tabString}dir: {dir}, filename: {filename}");
+
+                    string fullPath;
+                    if (dir.EndsWith("/")) {
+                        fullPath = string.Concat(dir, filename);
+                    } else {
+                        fullPath = string.Concat(dir, "/", filename);
+                    }
+
+                    if (PhysFS.Stat(fullPath).FileType == PHYSFS_FileType.PHYSFS_FILETYPE_DIRECTORY) {
+                        ShowFilesAt(fullPath, tab + 1);
+                    }
+
+                    return PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_OK;
+                }
+            );
+        }
+
+        private static void ShowSearchPaths() {
+            Debug.WriteLine("  Enumerating search paths:");
+
+            PhysFS.Instance.EnumerateSearchPath(
+                (string path) => {
+                    Debug.WriteLine($"    path: {path}");
+                }
+            );
+        }
+
+        #endregion Private Methods
     }
 }

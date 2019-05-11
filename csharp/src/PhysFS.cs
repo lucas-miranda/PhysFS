@@ -263,6 +263,26 @@ namespace PhysFS {
             CheckReturnValue(ret);
         }
 
+        public void MountMemory(byte[] buffer, string newDir, string mountPoint, bool appendToPath) {
+            IntPtr bufPtr = Marshal.AllocHGlobal(buffer.Length * Marshal.SizeOf<byte>()),
+                   newDirStrPtr = Marshal.StringToHGlobalAnsi(newDir),
+                   mountPointStrPtr = Marshal.StringToHGlobalAnsi(mountPoint);
+
+            Marshal.Copy(buffer, 0, bufPtr, buffer.Length);
+
+            int ret = Interop.PHYSFS_mountMemory(bufPtr, (ulong) buffer.LongLength, UnmountCallback, newDirStrPtr, mountPointStrPtr, appendToPath ? 1 : 0);
+
+            Marshal.FreeHGlobal(newDirStrPtr);
+            Marshal.FreeHGlobal(mountPointStrPtr);
+
+            CheckReturnValue(ret);
+            return;
+
+            void UnmountCallback(IntPtr buf) {
+                Marshal.FreeHGlobal(buf);
+            }
+        }
+
         public bool Unmount(string oldDir) {
             IntPtr oldDirStrPtr = Marshal.StringToHGlobalAnsi(oldDir);
             int ret = Interop.PHYSFS_unmount(oldDirStrPtr);

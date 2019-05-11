@@ -56,9 +56,9 @@ namespace PhysFS.Test {
 #else
             ret = function();
             if (ret) {
-                Debug.WriteLine("  Passed!");
+                Debug.WriteLine("Passed!");
             } else {
-                Debug.WriteLine($"  Failed");
+                Debug.WriteLine($"Failed");
             }
 #endif
 

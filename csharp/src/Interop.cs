@@ -144,6 +144,10 @@ namespace PhysFS {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void PHYSFS_FP_EnumFilesCallback(IntPtr data, IntPtr origdir, IntPtr fname);
 
+        // void (*)(void *buffer);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void PHYSFS_FP_MountedMemoryUnmount(IntPtr buffer); // unmount callback to PHYSFS_mountMemory()
+
         // PHYSFS_Allocator
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int PHYSFS_FP_Init();
@@ -659,7 +663,7 @@ namespace PhysFS {
         public static extern int PHYSFS_mountIo(IntPtr io, IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => PHYSFS_Io*; IntPtr => const char*; IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_mountMemory(IntPtr buf, ulong len, IntPtr del, string newDir, string mountPoint, int appendToPath);
+        public static extern int PHYSFS_mountMemory(IntPtr buf, ulong len, PHYSFS_FP_MountedMemoryUnmount del, IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => const void*; IntPtr => const char*; IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_mountHandle(IntPtr file, string newDir, string mountPoint, int appendToPath);
