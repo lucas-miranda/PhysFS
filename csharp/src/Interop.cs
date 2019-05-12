@@ -666,7 +666,7 @@ namespace PhysFS {
         public static extern int PHYSFS_mountMemory(IntPtr buf, ulong len, PHYSFS_FP_MountedMemoryUnmount del, IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => const void*; IntPtr => const char*; IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_mountHandle(IntPtr file, string newDir, string mountPoint, int appendToPath);
+        public static extern int PHYSFS_mountHandle(IntPtr file, IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => PHSYFS_File*; IntPtr => const char*; IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern PHYSFS_ErrorCode PHYSFS_getLastErrorCode(); //

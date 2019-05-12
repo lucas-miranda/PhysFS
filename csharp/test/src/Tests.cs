@@ -267,7 +267,7 @@ namespace PhysFS.Test {
             Debug.WriteLine("  Mounting file on memory");
             PhysFS.Instance.MountMemory(folderBytes, "memory-file.zip", "/memory-mount-test/", appendToPath: true);
 
-            ShowFilesAt("/");
+            ShowAllFilesAt("/");
             ShowSearchPaths();
 
             PhysFS.Deinitialize();
@@ -281,7 +281,7 @@ namespace PhysFS.Test {
             TestStream stream = new TestStream("folder.zip");
             PhysFS.Instance.MountIOStream(stream, "file-from-iostream.zip", mountPoint: "/", appendToPath: true);
 
-            ShowFilesAt("/");
+            ShowAllFilesAt("/");
             ShowSearchPaths();
 
             PhysFS.Deinitialize();
@@ -292,7 +292,7 @@ namespace PhysFS.Test {
 
         #region Private Methods
 
-        private static void ShowFilesAt(string baseDir, int tab = 0) {
+        private static void ShowAllFilesAt(string baseDir, int tab = 0) {
             string tabString = new string(' ', tab * 2);
             Debug.WriteLine($"  {tabString}Files at '{baseDir}':\n");
 
@@ -309,7 +309,7 @@ namespace PhysFS.Test {
                     }
 
                     if (PhysFS.Stat(fullPath).FileType == PHYSFS_FileType.PHYSFS_FILETYPE_DIRECTORY) {
-                        ShowFilesAt(fullPath, tab + 1);
+                        ShowAllFilesAt(fullPath, tab + 1);
                     }
 
                     return PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_OK;
