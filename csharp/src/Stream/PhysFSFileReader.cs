@@ -5,14 +5,11 @@ using System.Runtime.InteropServices;
 namespace PhysFS.Stream {
     public class PhysFSFileReader : System.IO.Stream {
         public PhysFSFileReader(string filename) {
-            IntPtr filenamePtr = Marshal.StringToHGlobalAnsi(filename);
-            Handle = Interop.PHYSFS_openRead(filenamePtr);
+            Handle = Interop.PHYSFS_openRead(filename);
 
             if (Handle == IntPtr.Zero) {
                 throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
             }
-
-            Marshal.FreeHGlobal(filenamePtr);
         }
 
         public IntPtr Handle { get; private set; } // IntPtr => PHYSFS_File*

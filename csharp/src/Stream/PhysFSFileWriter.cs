@@ -7,19 +7,15 @@ namespace PhysFS.Stream {
         #region Constructors
 
         public PhysFSFileWriter(string filename, bool append = false) {
-            IntPtr filenamePtr = Marshal.StringToHGlobalAnsi(filename);
-
             if (append) {
-                Handle = Interop.PHYSFS_openAppend(filenamePtr);
+                Handle = Interop.PHYSFS_openAppend(filename);
             } else {
-                Handle = Interop.PHYSFS_openWrite(filenamePtr);
+                Handle = Interop.PHYSFS_openWrite(filename);
             }
 
             if (Handle == IntPtr.Zero) {
                 throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
             }
-
-            Marshal.FreeHGlobal(filenamePtr);
         }
 
         #endregion Constructors

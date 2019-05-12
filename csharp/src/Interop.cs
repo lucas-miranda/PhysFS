@@ -300,7 +300,7 @@ namespace PhysFS {
         /// This returns "\\" on win32, "/" on Unix, and ":" on MacOS. It may be more than one character, depending on the platform, and your code should take that into account. Note that this is only useful for setting up the search/write paths, since access into those dirs always use '/' (platform-independent notation) to separate directories. This is also handy for getting platform-independent access when using stdio calls.
         /// </remarks>
         /// <returns>READ ONLY null-terminated string of platform's dir separator.</returns>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern IntPtr PHYSFS_getDirSeparator(); // IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -358,8 +358,8 @@ namespace PhysFS {
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getWriteDir(); // IntPtr => const char*
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_setWriteDir(IntPtr newDir); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_setWriteDir(string newDir);
 
         /// <summary>
         /// Add an archive or directory to the search path.
@@ -371,30 +371,30 @@ namespace PhysFS {
         /// <param name="appendToPath">Nonzero to append to search path, zero to prepend.</param>
         /// <returns>Nonzero if added to path, zero on failure (bogus archive, dir missing, etc). Use PHYSFS_getLastErrorCode() to obtain the specific error.</returns>
         [Obsolete("As of PhysicsFS 2.0, use PHYSFS_mount() instead. This function just wraps it anyhow. This function is equivalent to: PHYSFS_mount(newDir, NULL, appendToPath);", error: false)]
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_addToSearchPath(IntPtr newDir, int appendToPath); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_addToSearchPath(string newDir, int appendToPath);
 
         [Obsolete("As of PhysicsFS 2.1, use PHYSFS_unmount() instead. This function just wraps it anyhow. There's no functional difference except the vocabulary changed from \"adding to the search path\" to \"mounting\" when that functionality was extended, and thus the preferred way to accomplish this function's work is now called \"unmounting.\"", error: false)]
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_removeFromSearchPath(IntPtr oldDir); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_removeFromSearchPath(string oldDir);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getSearchPath(); // IntPtr => char**
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_setSaneConfig(IntPtr organization, IntPtr appName, IntPtr archiveExt, int includeCdRoms, int archivesFirst); // IntPtr => const char*; IntPtr => const char*; IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_setSaneConfig(string organization, string appName, string archiveExt, int includeCdRoms, int archivesFirst);
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_mkdir(IntPtr dirName); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_mkdir(string dirName);
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_delete(IntPtr filename); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_delete(string filename);
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_getRealDir(IntPtr filename); // IntPtr (ret) => const char* | IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern IntPtr PHYSFS_getRealDir(string filename); // IntPtr => const char*
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_enumerateFiles(IntPtr dir); // IntPtr (ret) => char** | IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern IntPtr PHYSFS_enumerateFiles(string dir); // IntPtr => char**
 
         /// <summary>
         /// Determine if a file exists in the search path.
@@ -406,29 +406,29 @@ namespace PhysFS {
         /// </remarks>
         /// <param name="fname">Filename in platform-independent notation.</param>
         /// <returns>Non-zero if filename exists. zero otherwise.</returns>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_exists(IntPtr fname); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_exists(string fname);
 
         [Obsolete("As of PhysicsFS 2.1, use PHYSFS_stat() instead. This function just wraps it anyhow.", error: false)]
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_isDirectory(IntPtr fname); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_isDirectory(string fname);
 
         [Obsolete("As of PhysicsFS 2.1, use PHYSFS_stat() instead. This function just wraps it anyhow.", error: false)]
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_isSymbolicLink(IntPtr fname); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_isSymbolicLink(string fname);
 
         [Obsolete("As of PhysicsFS 2.1, use PHYSFS_stat() instead. This function just wraps it anyhow.", error: false)]
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern long PHYSFS_getLastModTime(IntPtr filename); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern long PHYSFS_getLastModTime(string filename);
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_openWrite(IntPtr filename); // IntPtr (ret) => PHYSFS_File* | IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern IntPtr PHYSFS_openWrite(string filename); // IntPtr => PHYSFS_File*
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_openAppend(IntPtr filename); // IntPtr (ret) => PHYSFS_File* | IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern IntPtr PHYSFS_openAppend(string filename); // IntPtr => PHYSFS_File*
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_openRead(IntPtr filename); // IntPtr (ret) => PHYSFS_File* | IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern IntPtr PHYSFS_openRead(string filename); // IntPtr => PHYSFS_File*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_close(IntPtr handle); // IntPtr => PHYSFS_File*
@@ -592,11 +592,11 @@ namespace PhysFS {
         /// <param name="mountPoint">Location in the interpolated tree that this archive will be "mounted", in platform-independent notation. NULL or "" is equivalent to "/".</param>
         /// <param name="appendToPath">Nonzero to append to search path, zero to prepend.</param>
         /// <returns>Nonzero if added to path, zero on failure (bogus archive, dir missing, etc). Use PHYSFS_getLastErrorCode() to obtain the specific error.</returns>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_mount(IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => const char*; IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_mount(string newDir, string mountPoint, int appendToPath);
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_getMountPoint(IntPtr dir); // IntPtr (ret) => const char* | IntPtr => const char*;
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern IntPtr PHYSFS_getMountPoint(string dir); // IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_getCdRomDirsCallback(PHYSFS_FP_StringCallback c, IntPtr d); // IntPtr => void*;
@@ -605,8 +605,8 @@ namespace PhysFS {
         public static extern void PHYSFS_getSearchPathCallback(PHYSFS_FP_StringCallback c, IntPtr d); // IntPtr => void*;
 
         [Obsolete("As of PhysicsFS 2.1, use PHYSFS_enumerate() instead. This function has no way to report errors (or to have the callback signal an error or request a stop), so if data will be lost, your callback has no way to direct the process, and your calling app has no way to know.")]
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_enumerateFilesCallback(IntPtr dir, PHYSFS_FP_EnumFilesCallback c, IntPtr d); // IntPtr => const char*; IntPtr => void*;
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern void PHYSFS_enumerateFilesCallback(string dir, PHYSFS_FP_EnumFilesCallback c, IntPtr d); // IntPtr => void*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_utfFromUcs4(UIntPtr src, string dst, ulong len);
@@ -635,17 +635,17 @@ namespace PhysFS {
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_ucs4stricmp(UIntPtr str1, UIntPtr str2);
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_enumerate(IntPtr dir, PHYSFS_FP_EnumerateCallback c, IntPtr d); // IntPtr => const char*; IntPtr => void*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_enumerate(string dir, PHYSFS_FP_EnumerateCallback c, IntPtr d); // IntPtr => void*
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_unmount(IntPtr oldDir); // IntPtr => const char*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_unmount(string oldDir); // IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr PHYSFS_getAllocator();
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_stat(IntPtr fname, IntPtr stat); // IntPtr => const char*; IntPtr => PHYSFS_Stat*
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_stat(string fname, IntPtr stat); // IntPtr => PHYSFS_Stat*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_utf8FromUtf16(UIntPtr src, string dst, ulong len);
@@ -659,26 +659,26 @@ namespace PhysFS {
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern long PHYSFS_writeBytes(IntPtr handle, IntPtr buffer, ulong len); // IntPtr => PHYSFS_File*; IntPtr => void*
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_mountIo(IntPtr io, IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => PHYSFS_Io*; IntPtr => const char*; IntPtr => const char*;
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_mountIo(IntPtr io, string newDir, string mountPoint, int appendToPath); // IntPtr => PHYSFS_Io*;
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_mountMemory(IntPtr buf, ulong len, PHYSFS_FP_MountedMemoryUnmount del, IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => const void*; IntPtr => const char*; IntPtr => const char*;
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_mountMemory(IntPtr buf, ulong len, PHYSFS_FP_MountedMemoryUnmount del, string newDir, string mountPoint, int appendToPath); // IntPtr => const void*;
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_mountHandle(IntPtr file, IntPtr newDir, IntPtr mountPoint, int appendToPath); // IntPtr => PHSYFS_File*; IntPtr => const char*; IntPtr => const char*;
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int PHYSFS_mountHandle(IntPtr file, string newDir, string mountPoint, int appendToPath); // IntPtr => PHSYFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern PHYSFS_ErrorCode PHYSFS_getLastErrorCode(); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_getErrorByCode(PHYSFS_ErrorCode code); // IntPtr (ret) => const char*
+        public static extern IntPtr PHYSFS_getErrorByCode(PHYSFS_ErrorCode code); // IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_setErrorCode(PHYSFS_ErrorCode code); //
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_getPrefDir(IntPtr org, IntPtr app); // IntPtr (ret) => const char* | IntPtr => const char*; IntPtr => const char*;
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern IntPtr PHYSFS_getPrefDir(string org, string app); // IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_registerArchiver(IntPtr archiver);
