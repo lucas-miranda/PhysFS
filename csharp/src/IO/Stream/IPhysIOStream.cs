@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PhysFS.Stream {
+﻿namespace PhysFS.IO.Stream {
     public interface IPhysIOStream {
         uint Version { get; }
         bool CanRead { get; }

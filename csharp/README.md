@@ -4,7 +4,7 @@
 
 **Interop.cs**  
 
-Maps every function from [*PhysFS/src/physfs.h*](/../src/physfs.h), including original documentation, each of C# managed pointer data representation is signaled with comments.
+Maps every function from [*PhysFS/src/physfs.h*](/master/src/physfs.h), including original documentation, each of C# managed pointer data representation is signaled with comments.
 This file itself can be used to manipulate PhysFS entirely, but all error checking must be done by yourself.
 
 **PhysFS.cs**
@@ -12,7 +12,7 @@ This file itself can be used to manipulate PhysFS entirely, but all error checki
 Provides a mean to use PhysFS in an object-oriented way, each returning value is checked and proper exception is thrown when necessary.
 All allocation and deallocation is made automatically, so you don't need to worry about it.
 
-Some functions, like *PHYSFS_openWrite*, *PHYSFS_openAppend* and *PHYSFS_openRead*, operate in their own classes (**PhysFSFileWrite** and **PhysFSFileReader**, for example), so not every function at [*PhysFS/src/physfs.h*](/../src/physfs.h) will be available on **PhysFS** class.
+Some functions, like *PHYSFS_openWrite*, *PHYSFS_openAppend* and *PHYSFS_openRead*, operate in their own classes (**PhysFSFileWrite** and **PhysFSFileReader**, for example), so not every function at [*PhysFS/src/physfs.h*](/master/src/physfs.h) will be available on **PhysFS** class.
 
 And, lastly, some functions just doesn't fit at **PhysFS** class at the moment, so I'll not include them, e.g. *PHYSFS_mountHandle* (as it needs a *PHYSFS_File** and we don't work directly with those).
 
