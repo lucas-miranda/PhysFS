@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 
 namespace PhysFS.IO.Stream {
     public class PhysFSFileReader : System.IO.Stream {
+        #region Constructors
+
         public PhysFSFileReader(string filename) {
             Handle = Interop.PHYSFS_openRead(filename);
 
@@ -11,6 +13,10 @@ namespace PhysFS.IO.Stream {
                 throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
             }
         }
+
+        #endregion Constructors
+
+        #region Public Properties
 
         public IntPtr Handle { get; private set; } // IntPtr => PHYSFS_File*
         public override bool CanRead { get { return true; } }
@@ -33,6 +39,10 @@ namespace PhysFS.IO.Stream {
                 Seek(value, SeekOrigin.Begin);
             }
         }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override void Flush() {
             int ret = Interop.PHYSFS_flush(Handle);
@@ -98,5 +108,25 @@ namespace PhysFS.IO.Stream {
         public override void Write(byte[] buffer, int offset, int count) {
             throw new NotImplementedException("Can't write from a PhysFSFileReader stream.");
         }
+
+        #endregion Public Methods
+
+        #region Protected Methods
+
+        protected override void Dispose(bool disposing) {
+            base.Dispose(disposing);
+
+            if (Handle != IntPtr.Zero) {
+                int ret = Interop.PHYSFS_close(Handle);
+
+                if (ret == 0) {
+                    throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
+                }
+
+                Handle = IntPtr.Zero;
+            }
+        }
+
+        #endregion Protected Methods
     }
 }

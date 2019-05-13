@@ -1,5 +1,5 @@
 ﻿namespace PhysFS.IO.Stream {
-    public interface IPhysIOStream {
+    public interface IPhysFSStream {
         uint Version { get; }
         bool CanRead { get; }
         bool CanWrite { get; }
@@ -9,7 +9,7 @@
         bool Seek(ulong offset);
         long Tell();
         long Length();
-        IPhysIOStream Duplicate();
+        IPhysFSStream Duplicate();
         bool Flush();
         void Destroy();
     }

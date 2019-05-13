@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
-using PhysFS.Stream;
+using PhysFS.IO;
+using PhysFS.IO.Stream;
 using PhysFS.Util;
 
 namespace PhysFS {
@@ -156,8 +156,8 @@ namespace PhysFS {
             }
 
             int ret = Interop.PHYSFS_deinit();
-
             CheckReturnValue(ret);
+            Instance = null;
             return true;
         }
 
@@ -219,7 +219,7 @@ namespace PhysFS {
             return ret != 0;
         }
 
-        public void MountIOStream(IPhysIOStream ioStream, string newDir, string mountPoint, bool appendToPath) {
+        public void MountIOStream(IPhysFSStream ioStream, string newDir, string mountPoint, bool appendToPath) {
             IntPtr ioStructPtr = PrepareIOStruct(ioStream);
 
             int ret = Interop.PHYSFS_mountIo(ioStructPtr, newDir, mountPoint, appendToPath ? 1 : 0);
@@ -239,6 +239,29 @@ namespace PhysFS {
             void UnmountCallback(IntPtr buf) {
                 Marshal.FreeHGlobal(buf);
             }
+        }
+
+        /// <summary>
+        /// Add an archive, contained in a <see cref="PhysFSFile"/>, to the search path.
+        /// This method will automatically handle file <see cref="PhysFSFile.Close"/> when archive is unmounted, so don't worry, and *don't* use the <see cref="PhysFSFile"/> reference after unmounting, as it will be already closed. 
+        /// If you need to keep <see cref="PhysFSFile"/> alive after unmount, please use <see cref="PhysFS.MountIOStream"/>.
+        /// </summary>
+        /// <param name="file">The file containing archive data.</param>
+        /// <param name="newDir">Filename that can represent this stream.</param>
+        /// <param name="mountPoint">Location in the interpoled tree that this archive will be "mounted", in platform-independent notation. null or "" is equivalent to "/".</param>
+        /// <param name="appendToPath">True to append to search path, False to prepend.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="file"/> is null or <paramref name="file.Handle"/> is IntPtr.Zero, caused by error at file opening or it's already closed.</exception>
+        public void MountHandle(PhysFSFile file, string newDir, string mountPoint, bool appendToPath) {
+            if (file == null) {
+                throw new ArgumentNullException(nameof(file));
+            }
+
+            if (file.Handle == IntPtr.Zero) {
+                throw new ArgumentNullException(nameof(file.Handle), "Caused by an error at file opening or it's already closed.");
+            }
+
+            int ret = Interop.PHYSFS_mountHandle(file.Handle, newDir, mountPoint, appendToPath ? 1 : 0);
+            CheckReturnValue(ret);
         }
 
         public bool Unmount(string oldDir) {
@@ -395,7 +418,7 @@ namespace PhysFS {
             throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
         }
 
-        private static IntPtr PrepareIOStruct(IPhysIOStream ioStream) {
+        private static IntPtr PrepareIOStruct(IPhysFSStream ioStream) {
             PHYSFS_Io ioStruct = new PHYSFS_Io {
                 Version = ioStream.Version,
                 Opaque = IntPtr.Zero,
@@ -409,7 +432,7 @@ namespace PhysFS {
                     return ioStream.Length();
                 },
                 Duplicate = (IntPtr io) => {
-                    IPhysIOStream ioStreamClone = ioStream.Duplicate();
+                    IPhysFSStream ioStreamClone = ioStream.Duplicate();
                     IntPtr ioStructClonePtr = PrepareIOStruct(ioStreamClone);
                     return ioStructClonePtr;
                 },

@@ -4,7 +4,8 @@ using System.Collections;
 using System.Diagnostics;
 using System.Text;
 
-using PhysFS.Stream;
+using PhysFS.IO;
+using PhysFS.IO.Stream;
 
 namespace PhysFS.Test {
     public static class Tests {
@@ -280,6 +281,21 @@ namespace PhysFS.Test {
 
             TestStream stream = new TestStream("folder.zip");
             PhysFS.Instance.MountIOStream(stream, "file-from-iostream.zip", mountPoint: "/", appendToPath: true);
+
+            ShowAllFilesAt("/");
+            ShowSearchPaths();
+
+            PhysFS.Deinitialize();
+            return true;
+        }
+
+        [TestCase("PhysFS.MountHandle")]
+        public static bool Test_MountHandle() {
+            PhysFS.Initialize();
+            PhysFS.Instance.Mount("archive inside archive.zip", mountPoint: "", appendToPath: true);
+
+            PhysFSFile file = PhysFSFile.OpenRead("inner archive.zip");
+            PhysFS.Instance.MountHandle(file, "file-from-mountHandle.zip", mountPoint: "/inner archive things", appendToPath: true);
 
             ShowAllFilesAt("/");
             ShowSearchPaths();

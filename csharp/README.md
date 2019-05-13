@@ -14,15 +14,17 @@ All allocation and deallocation is made automatically, so you don't need to worr
 
 Some functions, like *PHYSFS_openWrite*, *PHYSFS_openAppend* and *PHYSFS_openRead*, operate in their own classes (**PhysFSFileWrite** and **PhysFSFileReader**, for example), so not every function at [*PhysFS/src/physfs.h*](/src/physfs.h) will be available on **PhysFS** class.
 
-And, lastly, some functions just doesn't fit at **PhysFS** class at the moment, so I'll not include them, e.g. *PHYSFS_mountHandle* (as it needs a *PHYSFS_File** and we don't work directly with those).
-
-**Stream/PhysFSFileWriter.cs**
+**IO/Stream/PhysFSFileWriter.cs**
 
 The file write stream. Supporting append.
 
-**Stream/PhysFSFileReader.cs**
+**IO/Stream/PhysFSFileReader.cs**
 
 The file read stream.
+
+**IO/PhysFSFile**
+
+A *PHYSFS_File* representation. Close() must be called manually.
 
 **Exceptions/PhysFSException.cs**
 

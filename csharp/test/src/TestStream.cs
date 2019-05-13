@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using PhysFS.Stream;
+
+using PhysFS.IO.Stream;
 
 namespace PhysFS.Test {
-    public class TestStream : IPhysIOStream {
+    public class TestStream : IPhysFSStream {
         #region Private Members
 
         private byte[] _buffer;
@@ -103,7 +104,7 @@ namespace PhysFS.Test {
             return _buffer.LongLength;
         }
 
-        public IPhysIOStream Duplicate() {
+        public IPhysFSStream Duplicate() {
             Debug.WriteLineIf(IsDebugInfoEnabled, $"Duplicating");
             return new TestStream(Filepath);
         }
