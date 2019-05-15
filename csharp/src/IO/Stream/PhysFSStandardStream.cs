@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
-using PhysFS.IO.Stream;
-
-namespace PhysFS.Test {
-    public class TestStream : IPhysFSStream {
+namespace PhysFS.IO.Stream {
+    public class PhysFSStandardStream : IPhysFSStream {
         #region Private Members
 
         private byte[] _buffer;
@@ -14,9 +13,27 @@ namespace PhysFS.Test {
 
         #region Constructors
 
-        public TestStream(string filepath) {
+        public PhysFSStandardStream(string filepath) {
             Filepath = filepath;
             _buffer = System.IO.File.ReadAllBytes(filepath);
+        }
+
+        public PhysFSStandardStream(byte[] buffer) {
+            _buffer = new byte[buffer.LongLength];
+
+            for (long i = 0; i < buffer.LongLength; i++) {
+                _buffer[i] = buffer[i];
+            }
+        }
+
+        public PhysFSStandardStream(IntPtr ptr, int length) {
+            _buffer = new byte[length];
+            Marshal.Copy(ptr, _buffer, 0, length);
+        }
+
+        public PhysFSStandardStream(IntPtr ptr, ulong length) {
+            _buffer = new byte[length];
+            Util.Helper.MarshalCopy(ptr, _buffer, 0UL, length);
         }
 
         #endregion Constructors
@@ -43,7 +60,7 @@ namespace PhysFS.Test {
             }
         }
 
-        public bool ShowDebugInfo { get; set; }
+        public bool IsDebugInfoEnabled { get; set; }
 
         #endregion Public Properties
 
@@ -60,7 +77,7 @@ namespace PhysFS.Test {
                 len = (ulong) (_buffer.LongLength - _pos);
             }
 
-            Debug.WriteLineIf(ShowDebugInfo, $"Read {len} bytes");
+            Debug.WriteLineIf(IsDebugInfoEnabled, $"Read {len} bytes");
 
             Array.Copy(_buffer, _pos, buffer, 0L, (long) len);
             _pos += (long) len;
@@ -76,7 +93,7 @@ namespace PhysFS.Test {
                 len = (ulong) (_buffer.LongLength - _pos);
             }
 
-            Debug.WriteLineIf(ShowDebugInfo, $"Writing {len} bytes");
+            Debug.WriteLineIf(IsDebugInfoEnabled, $"Writing {len} bytes");
 
             Array.Copy(buffer, 0, _buffer, _pos, (long) len);
             _pos += (long) len;
@@ -84,7 +101,7 @@ namespace PhysFS.Test {
         }
 
         public bool Seek(ulong offset) {
-            Debug.WriteLineIf(ShowDebugInfo, $"Seek to {offset} byte");
+            Debug.WriteLineIf(IsDebugInfoEnabled, $"Seek to {offset} byte");
 
             if (offset > (ulong) _buffer.LongLength) {
                 return false;
@@ -95,27 +112,27 @@ namespace PhysFS.Test {
         }
 
         public long Tell() {
-            Debug.WriteLineIf(ShowDebugInfo, $"Current pos: {_pos}");
+            Debug.WriteLineIf(IsDebugInfoEnabled, $"Current pos: {_pos}");
             return _pos;
         }
 
         public long Length() {
-            Debug.WriteLineIf(ShowDebugInfo, $"Total length: {_buffer.LongLength}");
+            Debug.WriteLineIf(IsDebugInfoEnabled, $"Total length: {_buffer.LongLength}");
             return _buffer.LongLength;
         }
 
         public IPhysFSStream Duplicate() {
-            Debug.WriteLineIf(ShowDebugInfo, $"Duplicating");
-            return new TestStream(Filepath);
+            Debug.WriteLineIf(IsDebugInfoEnabled, $"Duplicating");
+            return new PhysFSStandardStream(_buffer);
         }
 
         public bool Flush() {
-            Debug.WriteLineIf(ShowDebugInfo, $"Data flushed");
+            Debug.WriteLineIf(IsDebugInfoEnabled, $"Data flushed");
             return true;
         }
 
         public void Destroy() {
-            Debug.WriteLineIf(ShowDebugInfo, $"Destroy");
+            Debug.WriteLineIf(IsDebugInfoEnabled, $"Destroy");
             _buffer = null;
         }
 

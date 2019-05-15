@@ -304,6 +304,56 @@ namespace PhysFS.Test {
             return true;
         }
 
+        [TestCase("PhysFS Archiver")]
+        public static bool Test_Archiver() {
+            PhysFS.Initialize();
+
+            TestArchiver archiver = new TestArchiver();
+            PhysFS.Instance.RegisterArchiver(archiver);
+
+            PHYSFS_ArchiveInfo[] supportedArchiveTypes = PhysFS.Instance.SupportedArchiveTypes;
+
+            #if PRINT_INFO
+            foreach (PHYSFS_ArchiveInfo archiveInfo in supportedArchiveTypes) {
+                Debug.WriteLine($"  ext: {archiveInfo.Extension} |  desc: {archiveInfo.Description} |  author: {archiveInfo.Author} |  url: {archiveInfo.Url} |  sym links: {archiveInfo.SupportsSymlinks == 1}");
+            }
+#endif
+
+            PhysFS.Instance.Mount("folder/hue file.xyz", mountPoint: "", appendToPath: true);
+
+            ShowAllFilesAt("/");
+            ShowSearchPaths();
+
+            using (PhysFSFileReader stream = new PhysFSFileReader("file a")) {
+                byte[] buffer = new byte[stream.Length];
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                string text = Encoding.UTF8.GetString(buffer);
+
+                Debug.WriteLine($"  File contents:\n{text}");
+                Debug.WriteLine($"  Bytes Read: {bytesRead}");
+            }
+
+            PhysFS.Deinitialize();
+            return true;
+        }
+
+        [TestCase("PhysFS Allocator")]
+        public static bool Test_Allocator() {
+            TestAllocator allocator = new TestAllocator {
+                ShowDebugInfo = false
+            };
+
+            PhysFS.Allocator = allocator;
+
+            PhysFS.Initialize();
+            Debug.WriteLine("  Mounting");
+            PhysFS.Instance.Mount(TestFolder, mountPoint: "", appendToPath: true);
+            Debug.WriteLine("  Unmounting");
+            PhysFS.Deinitialize();
+            return true;
+        }
+
         #endregion Public Methods
 
         #region Private Methods

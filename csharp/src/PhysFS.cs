@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+
+using PhysFS.Core;
 using PhysFS.IO;
 using PhysFS.IO.Stream;
 using PhysFS.Util;
@@ -18,6 +20,12 @@ namespace PhysFS {
     #endregion Delegates
 
     public class PhysFS {
+        #region Private Members
+
+        private static IntPtr _currentAllocatorPtr;
+
+        #endregion Private Members
+
         #region Constructors
 
         private PhysFS() {
@@ -50,6 +58,57 @@ namespace PhysFS {
                 Marshal.FreeHGlobal(ptr);
 
                 return version;
+            }
+        }
+
+        public static IPhysFSAllocator Allocator {
+            get {
+                IntPtr physfsAllocatorPtr = Interop.PHYSFS_getAllocator();
+                PHYSFS_Allocator physfsAllocator = Marshal.PtrToStructure<PHYSFS_Allocator>(physfsAllocatorPtr);
+
+                PhysFSInternalAllocator internalAllocator = new PhysFSInternalAllocator {
+                    InitializeFunction = () => {
+                        return physfsAllocator.Init() != 0;
+                    },
+                    DeinitializeFunction = () => {
+                        physfsAllocator.Deinit();
+                    },
+                    MallocFunction = (ulong bytes) => {
+                        return physfsAllocator.Malloc(bytes);
+                    },
+                    ReallocFunction = (IntPtr ptr, ulong newSize) => {
+                        return physfsAllocator.Realloc(ptr, newSize);
+                    },
+                    FreeFunction = (IntPtr ptr) => {
+                        physfsAllocator.Free(ptr);
+                    }
+                };
+
+                return internalAllocator;
+            }
+
+            set {
+                if (_currentAllocatorPtr != IntPtr.Zero) {
+                    Marshal.FreeHGlobal(_currentAllocatorPtr);
+                }
+
+                IPhysFSAllocator allocator = value;
+
+                PHYSFS_Allocator physfsAllocator = new PHYSFS_Allocator {
+                    Init = () => {
+                        return allocator.Initialize() ? 1 : 0;
+                    },
+                    Deinit = allocator.Deinitialize,
+                    Malloc = allocator.Malloc,
+                    Realloc = allocator.Realloc,
+                    Free = allocator.Free
+                };
+
+                IntPtr physfsAllocatorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<PHYSFS_Allocator>());
+                Marshal.StructureToPtr(physfsAllocator, physfsAllocatorPtr, fDeleteOld: false);
+
+                Interop.PHYSFS_setAllocator(physfsAllocatorPtr);
+                _currentAllocatorPtr = physfsAllocatorPtr;
             }
         }
 
@@ -176,6 +235,8 @@ namespace PhysFS {
 
             return stat;
         }
+
+        //
 
         public string GetPrefDirectory(string org, string app) {
             IntPtr prefDirPtr = Interop.PHYSFS_getPrefDir(org, app);
@@ -332,11 +393,8 @@ namespace PhysFS {
             }
 
             // Interop callback wrapper
-            PHYSFS_EnumerateCallbackResult enumerateCallback(IntPtr data, IntPtr origDir, IntPtr fname) {
-                string dir = Marshal.PtrToStringAnsi(origDir),
-                       filename = Marshal.PtrToStringAnsi(fname);
-
-                return callback(dir, filename);
+            PHYSFS_EnumerateCallbackResult enumerateCallback(IntPtr data, string origDir, string fname) {
+                return callback(origDir, fname);
             }
 
             int ret = Interop.PHYSFS_enumerate(dirName, enumerateCallback, d: IntPtr.Zero);
@@ -349,13 +407,10 @@ namespace PhysFS {
             }
 
             // Interop callback wrapper
-            PHYSFS_EnumerateCallbackResult enumerateCallback(IntPtr data, IntPtr origDir, IntPtr fname) {
-                string dir = Marshal.PtrToStringAnsi(origDir),
-                       filename = Marshal.PtrToStringAnsi(fname);
-
+            PHYSFS_EnumerateCallbackResult enumerateCallback(IntPtr data, string origDir, string fname) {
                 PHYSFS_EnumerateCallbackResult result = PHYSFS_EnumerateCallbackResult.PHYSFS_ENUM_ERROR;
 
-                IEnumerator e = callback(dir, filename);
+                IEnumerator e = callback(origDir, fname);
                 while (e.MoveNext()) {
                     if (e.Current is bool callbackRet) {
                         if (callbackRet) {
@@ -378,9 +433,8 @@ namespace PhysFS {
                 throw new ArgumentNullException(nameof(callback));
             }
 
-            void searchPathCallback(IntPtr data, IntPtr str) {
-                string path = Marshal.PtrToStringAnsi(str);
-                callback(path);
+            void searchPathCallback(IntPtr data, string str) {
+                callback(str);
             }
 
             Interop.PHYSFS_getSearchPathCallback(searchPathCallback, IntPtr.Zero);
@@ -391,12 +445,106 @@ namespace PhysFS {
                 throw new ArgumentNullException(nameof(callback));
             }
 
-            void cdRomDirsCallback(IntPtr data, IntPtr str) {
-                string path = Marshal.PtrToStringAnsi(str);
-                callback(path);
+            void cdRomDirsCallback(IntPtr data, string str) {
+                callback(str);
             }
 
             Interop.PHYSFS_getCdRomDirsCallback(cdRomDirsCallback, IntPtr.Zero);
+        }
+
+        public void RegisterArchiver<ArchiveDataType>(IPhysFSArchiver<ArchiveDataType> archiver) {
+            PHYSFS_Archiver physfsArchiver = new PHYSFS_Archiver {
+                Version = archiver.Version,
+                Info = new PHYSFS_ArchiveInfo {
+                        Extension = archiver.Extension,
+                        Description = archiver.Description,
+                        Author = archiver.Author,
+                        Url = archiver.Url,
+                        SupportsSymlinks = archiver.SupportSymLinks ? 1 : 0
+                    },
+                OpenArchive = (IntPtr io, string name, int forWrite, IntPtr claimed) => {
+                    IPhysFSStream internalStream = PrepareIOStream(io);
+                    ArchiveDataType data = archiver.OpenArchive(internalStream, name, forWrite != 0, out bool isClaimed);
+
+                    if (!isClaimed) {
+                        return IntPtr.Zero;
+                    }
+
+                    Marshal.WriteInt32(claimed, 1);
+                    IntPtr opaque = Marshal.AllocHGlobal(Marshal.SizeOf<ArchiveDataType>());
+                    Marshal.StructureToPtr(data, opaque, fDeleteOld: false);
+
+                    return opaque;
+                },
+                Enumerate = (IntPtr opaque, string dirname, Interop.PHYSFS_FP_EnumerateCallback callback, string origDir, IntPtr callbackData) => {
+                    ArchiveDataType data = Marshal.PtrToStructure<ArchiveDataType>(opaque);
+
+                    PHYSFS_EnumerateCallbackResult enumerateCallback(string dir, string filename) {
+                        return callback(callbackData, dir, filename);
+                    }
+
+                    PHYSFS_EnumerateCallbackResult result = archiver.Enumerate(ref data, dirname, enumerateCallback, origDir);
+                    Marshal.StructureToPtr(data, opaque, fDeleteOld: true); // update opaque data
+                    return result;
+                },
+                OpenRead = (IntPtr opaque, string fnm) => {
+                    ArchiveDataType data = Marshal.PtrToStructure<ArchiveDataType>(opaque);
+                    IPhysFSStream stream = archiver.OpenRead(ref data, fnm);
+                    Marshal.StructureToPtr(data, opaque, fDeleteOld: true); // update opaque data
+                    IntPtr io = PrepareIOStruct(stream);
+                    return io;
+                },
+                OpenWrite = (IntPtr opaque, string filename) => {
+                    ArchiveDataType data = Marshal.PtrToStructure<ArchiveDataType>(opaque);
+                    IPhysFSStream stream = archiver.OpenWrite(ref data, filename);
+                    Marshal.StructureToPtr(data, opaque, fDeleteOld: true); // update opaque data
+                    IntPtr io = PrepareIOStruct(stream);
+                    return io;
+                },
+                OpenAppend = (IntPtr opaque, string fnm) => {
+                    ArchiveDataType data = Marshal.PtrToStructure<ArchiveDataType>(opaque);
+                    IPhysFSStream stream = archiver.OpenAppend(ref data, fnm);
+                    Marshal.StructureToPtr(data, opaque, fDeleteOld: true); // update opaque data
+                    IntPtr io = PrepareIOStruct(stream);
+                    return io;
+                },
+                Remove = (IntPtr opaque, string filename) => {
+                    ArchiveDataType data = Marshal.PtrToStructure<ArchiveDataType>(opaque);
+                    bool result = archiver.Remove(ref data, filename);
+                    Marshal.StructureToPtr(data, opaque, fDeleteOld: true); // update opaque data
+                    return result ? 1 : 0;
+                },
+                Mkdir = (IntPtr opaque, string filename) => {
+                    ArchiveDataType data = Marshal.PtrToStructure<ArchiveDataType>(opaque);
+                    bool result = archiver.Mkdir(ref data, filename);
+                    Marshal.StructureToPtr(data, opaque, fDeleteOld: true); // update opaque data
+                    return result ? 1 : 0;
+                },
+                Stat = (IntPtr opaque, string fn, IntPtr stat) => {
+                    ArchiveDataType data = Marshal.PtrToStructure<ArchiveDataType>(opaque);
+                    if (archiver.Stat(ref data, fn, out PHYSFS_Stat statData)) {
+                        Marshal.StructureToPtr(statData, stat, fDeleteOld: false);
+                        return 1;
+                    }
+
+                    Marshal.StructureToPtr(data, opaque, fDeleteOld: true); // update opaque data
+                    return 0;
+                },
+                CloseArchive = (IntPtr opaque) => {
+                    ArchiveDataType data = Marshal.PtrToStructure<ArchiveDataType>(opaque);
+                    archiver.CloseArchive(ref data);
+                }
+            };
+
+            IntPtr physfsArchiverPtr = Marshal.AllocHGlobal(Marshal.SizeOf<PHYSFS_Archiver>());
+            Marshal.StructureToPtr(physfsArchiver, physfsArchiverPtr, fDeleteOld: false);
+
+            int ret = Interop.PHYSFS_registerArchiver(physfsArchiverPtr);
+            CheckReturnValue(ret);
+        }
+
+        public bool DeregisterArchiver(string ext) {
+            return Interop.PHYSFS_deregisterArchiver(ext) != 0;
         }
 
         #endregion Public Methods
@@ -473,6 +621,49 @@ namespace PhysFS {
             Marshal.StructureToPtr(ioStruct, ioPtr, fDeleteOld: false);
 
             return ioPtr;
+        }
+
+        private static IPhysFSStream PrepareIOStream(IntPtr io) {
+            PHYSFS_Io physfsIo = Marshal.PtrToStructure<PHYSFS_Io>(io);
+
+            PhysFSInternalStream internalStream = new PhysFSInternalStream {
+                ReadFunction = (byte[] buffer, ulong len) => {
+                    IntPtr buf = Marshal.AllocHGlobal(buffer.Length * Marshal.SizeOf<byte>());
+                    long bytesRead = physfsIo.Read(io, buf, len);
+                    Helper.MarshalCopy(buf, buffer, 0UL, len);
+                    Marshal.FreeHGlobal(buf);
+                    return bytesRead;
+                },
+                WriteFunction = (byte[] buffer, ulong len) => {
+                    IntPtr buf = Marshal.AllocHGlobal(buffer.Length * Marshal.SizeOf<byte>());
+                    Helper.MarshalCopy(buffer, 0UL, buf, len);
+                    long bytesWritten = physfsIo.Write(io, buf, len);
+                    Marshal.FreeHGlobal(buf);
+                    return bytesWritten;
+                },
+                SeekFunction = (ulong offset) => {
+                    int seekRet = physfsIo.Seek(io, offset);
+                    return seekRet != 0;
+                },
+                TellFunction = () => {
+                    return physfsIo.Tell(io);
+                },
+                LengthFunction = () => {
+                    return physfsIo.Length(io);
+                },
+                DuplicateFunction = () => {
+                    IntPtr ioClone = physfsIo.Duplicate(io);
+                    return PrepareIOStream(ioClone);
+                },
+                FlushFunction = () => {
+                    return physfsIo.Flush(io) != 0;
+                },
+                DestroyFunction = () => {
+                    physfsIo.Destroy(io);
+                }
+            };
+
+            return internalStream;
         }
 
         #endregion Private Methdods

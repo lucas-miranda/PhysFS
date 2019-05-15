@@ -61,7 +61,12 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\Core\Allocator\IPhysFSAllocator.cs" />
+    <Compile Include="src\Core\Allocator\PhysFSInternalAllocator.cs" />
+    <Compile Include="src\Core\Archiver\IPhysFSArchiver.cs" />
     <Compile Include="src\IO\PhysFSFile.cs" />
+    <Compile Include="src\IO\Stream\PhysFSInternalStream.cs" />
+    <Compile Include="src\IO\Stream\PhysFSStandardStream.cs" />
     <Compile Include="src\PhysFS.cs" />
     <Compile Include="src\Interop.cs" />
     <Compile Include="src\Exceptions\PhysFSException.cs" />

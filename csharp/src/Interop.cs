@@ -79,6 +79,7 @@ namespace PhysFS {
         public Interop.PHYSFS_FP_openArchive OpenArchive;       // void* (*openArchive) (PHYSFS_Io *io, const char *name, int forWrite, int *claimed)
         public Interop.PHYSFS_FP_enumerate Enumerate;           // PHYSFS_EnumerateCallbackResult (*enumerate) (void *opaque, const char *dirname, PHYSFS_EnumerateCallback cb, const char *origdir, void *callbackdata)
         public Interop.PHYSFS_FP_openRead OpenRead;             // PHYSFS_Io* (*openRead) (void *opaque, const char *fnm)
+        public Interop.PHYSFS_FP_openWrite OpenWrite;           // PHYSFS_Io* (*openWrite) (void *opaque, const char *filename)
         public Interop.PHYSFS_FP_openAppend OpenAppend;         // PHYSFS_Io* (*openAppend) (void *opaque, const char *fnm)
         public Interop.PHYSFS_FP_remove Remove;                 // int (*remove) (void *opaque, const char *filename)
         public Interop.PHYSFS_FP_mkdir Mkdir;                   // int (*mkdir) (void *opaque, const char *filename)
@@ -132,17 +133,17 @@ namespace PhysFS {
         // Callbacks
 
         // PHYSFS_EnumerateCallbackResult (*PHYSFS_EnumerateCallback)(void *data, const char *origdir, const char *fname);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_EnumerateCallback(IntPtr data, IntPtr origDir, IntPtr fname);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_EnumerateCallback(IntPtr data, string origDir, string fname);
 
         // void (*PHYSFS_StringCallback)(void *data, const char *str);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void PHYSFS_FP_StringCallback(IntPtr data, IntPtr str);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public delegate void PHYSFS_FP_StringCallback(IntPtr data, string str);
 
         [Obsolete("As of PhysicsFS 2.1, Use PHYSFS_EnumerateCallback with PHYSFS_enumerate() instead; it gives you more control over the process.")]
         // void (*PHYSFS_EnumFilesCallback)(void *data, const char *origdir, const char *fname);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void PHYSFS_FP_EnumFilesCallback(IntPtr data, IntPtr origdir, IntPtr fname);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public delegate void PHYSFS_FP_EnumFilesCallback(IntPtr data, string origdir, string fname);
 
         // void (*)(void *buffer);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -165,14 +166,17 @@ namespace PhysFS {
         public delegate void PHYSFS_FP_Free(IntPtr handle);
 
         // PHYSFS_Archiver
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate IntPtr PHYSFS_FP_openArchive(IntPtr io, string name, int forWrite, IntPtr claimed);
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate PHYSFS_EnumerateCallbackResult PHYSFS_FP_enumerate(IntPtr opaque, string dirname, PHYSFS_FP_EnumerateCallback cb, string origDir, IntPtr callbackdata);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr PHYSFS_FP_openRead(IntPtr opaque, string fnm);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr PHYSFS_FP_openWrite(IntPtr opaque, string filename);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr PHYSFS_FP_openAppend(IntPtr opaque, string fnm);
@@ -574,7 +578,7 @@ namespace PhysFS {
         public static extern int PHYSFS_symbolicLinksPermitted(); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_setAllocator(IntPtr allocator);
+        public static extern int PHYSFS_setAllocator(IntPtr allocator); // 
 
         /// <summary>
         /// Add an archive or directory to the search path.
@@ -683,7 +687,7 @@ namespace PhysFS {
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_registerArchiver(IntPtr archiver);
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int PHYSFS_deregisterArchiver(string ext);
 
         #endregion Public Methods
