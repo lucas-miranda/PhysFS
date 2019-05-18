@@ -357,6 +357,42 @@ namespace PhysFS.Test {
             return true;
         }
 
+        [TestCase("PhysFSStream ReadWriteBytes")]
+        public static bool Test_ReadWriteBytes() {
+            PhysFS.Initialize();
+            //PhysFS.Instance.WriteDirectory = TestFolder;
+            PhysFS.Instance.Mount(TestFolder, mountPoint: "", appendToPath: true);
+
+            string filename = "test.txt";
+            Debug.WriteLine($"  Reading '{filename}' file");
+
+            PhysFSFile file = PhysFSFile.OpenRead(filename);
+            using (PhysFSStream stream = new PhysFSStream(file)) {
+                uint value = 0;
+
+                for (int i = 0; i < 5; i++) {
+                    /*
+                    if (stream.WriteULE16(60)) {
+                        Debug.WriteLine("  Write to file");
+                    } else {
+                        Debug.WriteLine("  Can't write to file");
+                    }
+                    */
+
+                    if (stream.ReadULE32(ref value)) {
+                        Debug.WriteLine($"  Read ULE 32: {value}");
+                    } else {
+                        Debug.WriteLine("  Can't Read ULE 32");
+                    }
+                }
+
+                Debug.WriteLine($"  Current Stream Pos: {stream.Position}");
+            }
+
+            PhysFS.Deinitialize();
+            return true;
+        }
+
         #endregion Public Methods
 
         #region Private Methods

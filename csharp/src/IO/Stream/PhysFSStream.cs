@@ -98,6 +98,288 @@ namespace PhysFS.IO.Stream {
             return (int) bytesRead;
         }
 
+        public bool ReadSLE16(ref short value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<short>());
+            int ret = Interop.PHYSFS_readSLE16(File.Handle, valuePtr);
+            value = Marshal.ReadInt16(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadULE16(ref ushort value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<ushort>());
+            int ret = Interop.PHYSFS_readULE16(File.Handle, valuePtr);
+            value = (ushort) Marshal.ReadInt16(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadSLE32(ref int value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<int>());
+            int ret = Interop.PHYSFS_readSLE32(File.Handle, valuePtr);
+            value = Marshal.ReadInt32(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadULE32(ref uint value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<uint>());
+            int ret = Interop.PHYSFS_readSLE32(File.Handle, valuePtr);
+            value = (uint) Marshal.ReadInt32(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadSLE64(ref long value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<long>());
+            int ret = Interop.PHYSFS_readSLE32(File.Handle, valuePtr);
+            value = Marshal.ReadInt64(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadULE64(ref ulong value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<ulong>());
+            int ret = Interop.PHYSFS_readSLE32(File.Handle, valuePtr);
+            value = (ulong) Marshal.ReadInt64(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadSBE16(ref short value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<short>());
+            int ret = Interop.PHYSFS_readSBE16(File.Handle, valuePtr);
+            value = Marshal.ReadInt16(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadUBE16(ref ushort value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<ushort>());
+            int ret = Interop.PHYSFS_readUBE16(File.Handle, valuePtr);
+            value = (ushort) Marshal.ReadInt16(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadSBE32(ref int value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<int>());
+            int ret = Interop.PHYSFS_readSBE32(File.Handle, valuePtr);
+            value = Marshal.ReadInt32(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadUBE32(ref uint value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<uint>());
+            int ret = Interop.PHYSFS_readSBE32(File.Handle, valuePtr);
+            value = (uint) Marshal.ReadInt32(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadSBE64(ref long value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<long>());
+            int ret = Interop.PHYSFS_readSBE32(File.Handle, valuePtr);
+            value = Marshal.ReadInt64(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public bool ReadUBE64(ref ulong value) {
+            if (!CanRead) {
+                throw new NotSupportedException("Can't read, File is oppened to write only.");
+            }
+
+            IntPtr valuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<ulong>());
+            int ret = Interop.PHYSFS_readSBE32(File.Handle, valuePtr);
+            value = (ulong) Marshal.ReadInt64(valuePtr);
+            Marshal.FreeHGlobal(valuePtr);
+
+            return ret != 0;
+        }
+
+        public override void Write(byte[] buffer, int offset, int count) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int bufferSize = count * sizeof(byte);
+            IntPtr bufferPtr = Marshal.AllocHGlobal(bufferSize);
+            Marshal.Copy(buffer, offset, bufferPtr, count);
+
+            long writtenBytes = Interop.PHYSFS_writeBytes(File.Handle, bufferPtr, (ulong) bufferSize);
+
+            Marshal.FreeHGlobal(bufferPtr);
+
+            if (writtenBytes < count) {
+                throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
+            }
+        }
+
+        public bool WriteSLE16(short value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeSLE16(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteULE16(ushort value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeULE16(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteSBE16(short value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeSBE16(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteUBE16(ushort value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeUBE16(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteSLE32(short value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeSLE32(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteULE32(ushort value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeULE32(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteSBE32(short value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeSBE32(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteUBE32(ushort value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeUBE32(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteSLE64(short value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeSLE64(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteULE64(ushort value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeULE64(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteSBE64(short value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeSBE64(File.Handle, value);
+            return ret != 0;
+        }
+
+        public bool WriteUBE64(ushort value) {
+            if (!CanWrite) {
+                throw new NotSupportedException("Can't write, File is oppened to read only.");
+            }
+
+            int ret = Interop.PHYSFS_writeUBE64(File.Handle, value);
+            return ret != 0;
+        }
+
         public override long Seek(long offset, SeekOrigin origin) {
             ulong pos;
 
@@ -129,24 +411,6 @@ namespace PhysFS.IO.Stream {
 
         public override void SetLength(long value) {
             throw new NotImplementedException();
-        }
-
-        public override void Write(byte[] buffer, int offset, int count) {
-            if (!CanWrite) {
-                throw new NotSupportedException("Can't write, File is oppened to read only.");
-            }
-
-            int bufferSize = count * sizeof(byte);
-            IntPtr bufferPtr = Marshal.AllocHGlobal(bufferSize);
-            Marshal.Copy(buffer, offset, bufferPtr, count);
-
-            long writtenBytes = Interop.PHYSFS_writeBytes(File.Handle, bufferPtr, (ulong) bufferSize);
-
-            Marshal.FreeHGlobal(bufferPtr);
-
-            if (writtenBytes < count) {
-                throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
-            }
         }
 
         #endregion Public Methods
