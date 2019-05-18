@@ -8,7 +8,36 @@ namespace PhysFS.IO {
             Handle = handle;
         }
 
+        public PhysFSFile(string filename, FileMode mode) {
+            Filename = filename;
+            Mode = mode;
+
+            switch (mode) {
+                case FileMode.Read:
+                    Handle = Interop.PHYSFS_openRead(filename);
+                    break;
+
+                case FileMode.Write:
+                    Handle = Interop.PHYSFS_openWrite(filename);
+                    break;
+
+                case FileMode.Append:
+                    Handle = Interop.PHYSFS_openAppend(filename);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unsupported FileMode '{mode}'");
+            }
+        }
+
         #endregion Constructors
+
+        #region Public Properties 
+
+        public FileMode Mode { get; private set; }
+        public string Filename { get; private set; }
+
+        #endregion Public Properties 
 
         #region Internal Properties
 
@@ -25,7 +54,10 @@ namespace PhysFS.IO {
                 throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
             }
 
-            return new PhysFSFile(Handle);
+            return new PhysFSFile(Handle) {
+                Mode = FileMode.Read,
+                Filename = filename
+            };
         }
 
         public static PhysFSFile OpenWrite(string filename) {
@@ -35,7 +67,10 @@ namespace PhysFS.IO {
                 throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
             }
 
-            return new PhysFSFile(Handle);
+            return new PhysFSFile(Handle) {
+                Mode = FileMode.Write,
+                Filename = filename
+            };
         }
 
         public static PhysFSFile OpenAppend(string filename) {
@@ -45,7 +80,10 @@ namespace PhysFS.IO {
                 throw new PhysFSException(Interop.PHYSFS_getLastErrorCode());
             }
 
-            return new PhysFSFile(Handle);
+            return new PhysFSFile(Handle) {
+                Mode = FileMode.Append,
+                Filename = filename
+            };
         }
 
         public void Close() {

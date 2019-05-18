@@ -126,14 +126,15 @@ namespace PhysFS.Test {
 
         #region PHYSFSFileWrite Tests
 
-        [TestCase("Stream.PhysFSFileWriter")]
-        public static bool Test_PhysFSFileWriter() {
+        [TestCase("PhysFSStream Write")]
+        public static bool Test_PhysFSStreamWrite() {
             PhysFS.Initialize();
 
             PhysFS.Instance.WriteDirectory = TestWriteDir;
             Debug.WriteLine($"  Write Dir: {PhysFS.Instance.WriteDirectory}");
 
-            using (PhysFSFileWriter stream = new PhysFSFileWriter("test-write-stream.txt", append: false)) {
+            PhysFSFile file = PhysFSFile.OpenWrite("test-write-stream.txt");
+            using (PhysFSStream stream = new PhysFSStream(file)) {
                 string text = "Just a PhysFSFileWrite test...";
                 byte[] textBytes = Encoding.UTF8.GetBytes(text);
 
@@ -150,14 +151,15 @@ namespace PhysFS.Test {
             return true;
         }
 
-        [TestCase("Stream.PhysFSFIleReader")]
-        public static bool Test_PhysFSFileReader() {
+        [TestCase("PhysFSStream Read")]
+        public static bool Test_PhysFSStreamRead() {
             PhysFS.Initialize();
             PhysFS.Instance.Mount(TestFolder, mountPoint: "", appendToPath: true);
 
             Debug.WriteLine($"  Reading 'just a text.txt' file");
 
-            using (PhysFSFileReader stream = new PhysFSFileReader("test.txt")) {
+            PhysFSFile file = PhysFSFile.OpenRead("test.txt");
+            using (PhysFSStream stream = new PhysFSStream(file)) {
                 byte[] buffer = new byte[stream.Length];
                 int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
@@ -324,7 +326,7 @@ namespace PhysFS.Test {
             ShowAllFilesAt("/");
             ShowSearchPaths();
 
-            using (PhysFSFileReader stream = new PhysFSFileReader("file a")) {
+            using (PhysFSStream stream = new PhysFSStream(PhysFSFile.OpenRead("file a"))) {
                 byte[] buffer = new byte[stream.Length];
                 int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
@@ -347,9 +349,10 @@ namespace PhysFS.Test {
             PhysFS.Allocator = allocator;
 
             PhysFS.Initialize();
-            Debug.WriteLine("  Mounting");
+            Debug.WriteLine("  Testing Mount");
             PhysFS.Instance.Mount(TestFolder, mountPoint: "", appendToPath: true);
-            Debug.WriteLine("  Unmounting");
+            Debug.WriteLine("  Testing Unmount");
+            PhysFS.Instance.Unmount(TestFolder);
             PhysFS.Deinitialize();
             return true;
         }
