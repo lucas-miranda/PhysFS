@@ -393,6 +393,63 @@ namespace PhysFS.Test {
             return true;
         }
 
+        [TestCase("PhysFS String Conversion")]
+        public static bool Test_StringConversion() {
+            string str = "Just a string conversion test";
+            Utf8();
+            Utf8ToUtf16();
+
+            str = "Heizölrückstoßabdämpfung";
+            Utf8();
+            Utf8ToUtf16();
+
+            str = "いろはにほへとちりぬるを";
+            Utf8();
+            Utf8ToUtf16();
+
+            Debug.WriteLine("");
+
+            str = PhysFS.Utf8ToUtf16("Just a string conversion test");
+            Utf16();
+            Utf8FromUtf16();
+
+            str = PhysFS.Utf8ToUtf16("Heizölrückstoßabdämpfung");
+            Utf16();
+            Utf8FromUtf16();
+
+            str = PhysFS.Utf8ToUtf16("いろはにほへとちりぬるを");
+            Utf16();
+            Utf8FromUtf16();
+
+            return true;
+
+            void Utf8() {
+                string strUtf8 = str;
+                Debug.WriteLine($"   utf8: {strUtf8}   ({strUtf8.Length})");
+            }
+
+            void Utf8ToUtf16() {
+                string strUtf16 = PhysFS.Utf8ToUtf16(str);
+                Debug.Write("  utf16: ");
+                Debug.Write(strUtf16);
+                Debug.WriteLine($"   ({strUtf16.Length})");
+            }
+
+            void Utf16() {
+                string strUtf16 = str;
+                Debug.Write("  utf16: ");
+                Debug.Write(strUtf16);
+                Debug.WriteLine($"   ({strUtf16.Length})");
+            }
+
+            void Utf8FromUtf16() {
+                string strUtf8 = PhysFS.Utf8FromUtf16(str);
+                Debug.Write("   utf8: ");
+                Debug.Write(strUtf8);
+                Debug.WriteLine($"   ({strUtf8.Length})");
+            }
+        }
+
         #endregion Public Methods
 
         #region Private Methods

@@ -652,10 +652,10 @@ namespace PhysFS {
         public static extern int PHYSFS_stat(string fname, IntPtr stat); // IntPtr => PHYSFS_Stat*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_utf8FromUtf16(UIntPtr src, string dst, ulong len);
+        public static extern void PHYSFS_utf8FromUtf16(IntPtr src, IntPtr dst, ulong len); // IntPtr => ushort*; IntPtr => const char*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_utf8ToUtf16(string src, UIntPtr dst, ulong len);
+        public static extern void PHYSFS_utf8ToUtf16(IntPtr src, IntPtr dst, ulong len); // IntPtr => const char*; IntPtr => ushort*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern long PHYSFS_readBytes(IntPtr handle, IntPtr buffer, ulong len); // IntPtr => PHYSFS_File*; IntPtr => void*

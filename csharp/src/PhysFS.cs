@@ -236,6 +236,64 @@ namespace PhysFS {
             return stat;
         }
 
+        public static string Utf8ToUtf16(string strUtf8) {
+            byte[] nullTerminator = System.Text.Encoding.UTF8.GetBytes("\0");
+
+            // copy utf8Bytes to unmanaged memory
+            byte[] utf8Bytes = System.Text.Encoding.UTF8.GetBytes(strUtf8);
+            IntPtr utf8BytesPtr = Marshal.AllocHGlobal((utf8Bytes.Length + nullTerminator.Length) * Marshal.SizeOf<byte>());
+            Marshal.Copy(utf8Bytes, 0, utf8BytesPtr, utf8Bytes.Length);
+
+            // append null terminator
+            IntPtr nullTerminatorPtr = IntPtr.Add(utf8BytesPtr, utf8Bytes.Length * Marshal.SizeOf<byte>());
+            Marshal.Copy(nullTerminator, 0, nullTerminatorPtr, nullTerminator.Length);
+
+            // prepare utf16 string memory space
+            int utf16StrSize = 2 * (utf8Bytes.Length + nullTerminator.Length);
+            IntPtr utf16BytesPtr = Marshal.AllocHGlobal(utf16StrSize * Marshal.SizeOf<byte>());
+
+            Interop.PHYSFS_utf8ToUtf16(utf8BytesPtr, utf16BytesPtr, (ulong) utf16StrSize);
+
+            // get managed utf16 string
+            byte[] utf16Bytes = new byte[utf16StrSize];
+            Marshal.Copy(utf16BytesPtr, utf16Bytes, 0, utf16StrSize);
+            string stringUtf16 = System.Text.Encoding.Unicode.GetString(utf16Bytes);
+
+            Marshal.FreeHGlobal(utf16BytesPtr);
+            Marshal.FreeHGlobal(utf8BytesPtr);
+
+            return stringUtf16;
+        }
+
+        public static string Utf8FromUtf16(string strUtf16) {
+            byte[] nullTerminator = System.Text.Encoding.Unicode.GetBytes("\0");
+
+            // copy utf16Bytes to unmanaged memory
+            byte[] utf16Bytes = System.Text.Encoding.Unicode.GetBytes(strUtf16);
+            IntPtr utf16BytesPtr = Marshal.AllocHGlobal((utf16Bytes.Length + nullTerminator.Length) * Marshal.SizeOf<byte>());
+            Marshal.Copy(utf16Bytes, 0, utf16BytesPtr, utf16Bytes.Length);
+
+            // append null terminator
+            IntPtr nullTerminatorPtr = IntPtr.Add(utf16BytesPtr, utf16Bytes.Length * Marshal.SizeOf<byte>());
+            Marshal.Copy(nullTerminator, 0, nullTerminatorPtr, nullTerminator.Length);
+
+            // prepare utf8 string memory space
+            int utf8StrSize = utf16Bytes.Length;
+            IntPtr utf8BytesPtr = Marshal.AllocHGlobal(utf8StrSize * Marshal.SizeOf<byte>());
+
+            Interop.PHYSFS_utf8FromUtf16(utf16BytesPtr, utf8BytesPtr, (ulong) utf8StrSize);
+
+            // get managed utf8 string
+            byte[] utf8Bytes = new byte[utf8StrSize];
+            Marshal.Copy(utf8BytesPtr, utf8Bytes, 0, utf8StrSize);
+            string stringUtf8 = System.Text.Encoding.UTF8.GetString(utf8Bytes);
+
+            Marshal.FreeHGlobal(utf8BytesPtr);
+            Marshal.FreeHGlobal(utf16BytesPtr);
+
+            return stringUtf8;
+        }
+
         //
 
         public string GetPrefDirectory(string org, string app) {
