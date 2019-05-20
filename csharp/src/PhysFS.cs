@@ -236,6 +236,21 @@ namespace PhysFS {
             return stat;
         }
 
+        public static bool CaseFold(uint from, out uint to) {
+            IntPtr toPtr = Marshal.AllocHGlobal(Marshal.SizeOf<uint>());
+            int ret = Interop.PHYSFS_caseFold(from, toPtr);
+
+            if (ret == 0) {
+                to = default;
+                Marshal.FreeHGlobal(toPtr);
+                return false;
+            }
+
+            to = (uint) Marshal.ReadInt32(toPtr);
+            Marshal.FreeHGlobal(toPtr);
+            return true;
+        }
+
         public static string Utf8ToUtf16(string strUtf8) {
             byte[] nullTerminator = System.Text.Encoding.UTF8.GetBytes("\0");
 

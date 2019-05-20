@@ -500,76 +500,76 @@ namespace PhysFS {
         public static extern ulong PHYSFS_swapUBE64(ulong val);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readSLE16(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readSLE16(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => short*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readULE16(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readULE16(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => ushort*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readSLE32(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readSLE32(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => int*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readULE32(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readULE32(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => uint*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readSLE64(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readSLE64(IntPtr file, IntPtr val); // IntPtr => PHSYFS_File*; IntPtr => long*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readULE64(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readULE64(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => ulong*;
+
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)] 
+        public static extern int PHYSFS_readSBE16(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => short*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readSBE16(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readUBE16(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => ushort*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readUBE16(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readSBE32(IntPtr file, IntPtr val); // IntPtr => PHSYFS_File*; IntPtr => int*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readSBE32(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readUBE32(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => uint*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readUBE32(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readSBE64(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => long*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readSBE64(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_readUBE64(IntPtr file, IntPtr val); // IntPtr => PHYSFS_File*; IntPtr => ulong*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_readUBE64(IntPtr file, IntPtr val);
+        public static extern int PHYSFS_writeSLE16(IntPtr handle, short val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeSLE16(IntPtr handle, short val);
+        public static extern int PHYSFS_writeULE16(IntPtr handle, ushort val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeULE16(IntPtr handle, ushort val);
+        public static extern int PHYSFS_writeSBE16(IntPtr handle, short val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeSBE16(IntPtr handle, short val);
+        public static extern int PHYSFS_writeUBE16(IntPtr handle, ushort val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeUBE16(IntPtr handle, ushort val);
+        public static extern int PHYSFS_writeSLE32(IntPtr handle, int val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeSLE32(IntPtr handle, int val);
+        public static extern int PHYSFS_writeULE32(IntPtr handle, uint val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeULE32(IntPtr handle, uint val);
+        public static extern int PHYSFS_writeSBE32(IntPtr handle, int val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeSBE32(IntPtr handle, int val);
+        public static extern int PHYSFS_writeUBE32(IntPtr handle, uint val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeUBE32(IntPtr handle, uint val);
+        public static extern int PHYSFS_writeSLE64(IntPtr handle, long val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeSLE64(IntPtr handle, long val);
+        public static extern int PHYSFS_writeULE64(IntPtr handle, ulong val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeULE64(IntPtr handle, ulong val);
+        public static extern int PHYSFS_writeSBE64(IntPtr handle, long val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeSBE64(IntPtr handle, long val);
-
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_writeUBE64(IntPtr handle, ulong val);
+        public static extern int PHYSFS_writeUBE64(IntPtr handle, ulong val); // IntPtr => PHYSFS_File*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_isInit(); //
@@ -578,7 +578,7 @@ namespace PhysFS {
         public static extern int PHYSFS_symbolicLinksPermitted(); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_setAllocator(IntPtr allocator); // 
+        public static extern int PHYSFS_setAllocator(IntPtr allocator); // IntPtr => const PHYSFS_Allocator*;
 
         /// <summary>
         /// Add an archive or directory to the search path.
@@ -613,40 +613,40 @@ namespace PhysFS {
         public static extern void PHYSFS_enumerateFilesCallback(string dir, PHYSFS_FP_EnumFilesCallback c, IntPtr d); // IntPtr => void*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_utfFromUcs4(UIntPtr src, string dst, ulong len);
+        public static extern void PHYSFS_utf8FromUcs4(IntPtr src, string dst, ulong len); // IntPtr => uint*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_utf8ToUcs4(string src, UIntPtr dst, ulong len);
+        public static extern void PHYSFS_utf8ToUcs4(string src, IntPtr dst, ulong len); // IntPtr => uint*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_utf8FromUcs2(UIntPtr src, string dst, ulong le);
+        public static extern void PHYSFS_utf8FromUcs2(IntPtr src, string dst, ulong len); // IntPtr => ushort*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PHYSFS_utf8ToUcs2(string src, UIntPtr dst, ulong len);
+        public static extern void PHYSFS_utf8ToUcs2(string src, IntPtr dst, ulong len); // IntPtr => ushort*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_utf8FromLatin1(string src, string dst, ulong len);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_caseFold(uint from, UIntPtr to);
+        public static extern int PHYSFS_caseFold(uint from, IntPtr to); // IntPtr => uint*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int PHYSFS_utf8stricmp(string str1, string sr2);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_utf16stricmp(UIntPtr str1, UIntPtr str2);
+        public static extern int PHYSFS_utf16stricmp(IntPtr str1, IntPtr str2); // IntPtr => short*; IntPtr => short*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_ucs4stricmp(UIntPtr str1, UIntPtr str2);
+        public static extern int PHYSFS_ucs4stricmp(IntPtr str1, IntPtr str2); // IntPtr => uint*; IntPtr => uint*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int PHYSFS_enumerate(string dir, PHYSFS_FP_EnumerateCallback c, IntPtr d); // IntPtr => void*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public static extern int PHYSFS_unmount(string oldDir); // IntPtr => const char*
+        public static extern int PHYSFS_unmount(string oldDir);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_getAllocator();
+        public static extern IntPtr PHYSFS_getAllocator(); // IntPtr => PHYSFS_Allocator*
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int PHYSFS_stat(string fname, IntPtr stat); // IntPtr => PHYSFS_Stat*
@@ -676,16 +676,16 @@ namespace PhysFS {
         public static extern PHYSFS_ErrorCode PHYSFS_getLastErrorCode(); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr PHYSFS_getErrorByCode(PHYSFS_ErrorCode code); // IntPtr => const char*
+        public static extern IntPtr PHYSFS_getErrorByCode(PHYSFS_ErrorCode code); // IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PHYSFS_setErrorCode(PHYSFS_ErrorCode code); //
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public static extern IntPtr PHYSFS_getPrefDir(string org, string app); // IntPtr => const char*
+        public static extern IntPtr PHYSFS_getPrefDir(string org, string app); // IntPtr => const char*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PHYSFS_registerArchiver(IntPtr archiver);
+        public static extern int PHYSFS_registerArchiver(IntPtr archiver); // IntPtr => const PHYSFS_Archiver*;
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int PHYSFS_deregisterArchiver(string ext);
