@@ -1,0 +1,7 @@
+CMakeFiles/
+bin/
+
+csharp/bin/
+csharp/obj/
+csharp/test/bin/
+csharp/test/obj/
